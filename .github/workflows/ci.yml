@@ -1,0 +1,67 @@
+name: Test and Push
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  REGISTRY: zhukovskiy
+  IMAGE_NAME: space-lords-backend
+
+jobs:
+  # testing:
+  #   runs-on: ubuntu-latest
+  #   environment: team-dev-env
+  #   steps:
+  #     - name: Check out repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Python Linter    
+  #       uses: sunnysid3up/python-linter@master
+  #       with:
+  #         source: "backend"
+  #         mypy-options: "--ignore-missing-imports --show-error-codes"
+  #         pylint-options: "--rcfile=setup.cfg"
+  #         isort-options: "-w 100"
+  #         django: true
+
+
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+
+  #     - name: Set up Docker Compose
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y docker-compose
+
+  #     - name: Testing
+  #       run: |
+  #         make tests
+  pushing:
+    # needs: testing
+    runs-on: ubuntu-latest
+    environment: space-lords-env
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/arm64,linux/amd64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: ${{ steps.meta.outputs.labels }}
