@@ -1,8 +1,8 @@
+import os
 import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
-import config
 import presentation.screens.mainMenu as mainMenu
 import presentation.screens.map as mapScreens
 import presentation.screens.ship as shipScreens
@@ -60,7 +60,7 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
     await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
 def main():
-    token = config.BOT_TOKEN
+    token = os.environ['BOT_TOKEN']
 
     # Создаем приложение
     application = Application.builder().token(token).build()
