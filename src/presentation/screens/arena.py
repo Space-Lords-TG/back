@@ -1,5 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from screens.registry import register
+from presentation.screens.registry import register
 
 # Определяем идентификаторы экранов
 ARENA = 'АРЕНА'

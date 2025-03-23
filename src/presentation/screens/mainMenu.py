@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from screens.registry import register
-import screens.planet as planetScreens
+from presentation.screens.registry import register
+import presentation.screens.planet as planetScreens
 
 # Определяем идентификаторы экранов
 DEFAULT = 'ГЛАВНОЕ МЕНЮ'

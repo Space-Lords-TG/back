@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from screens.registry import register
-import screens.mainMenu as mainMenu
+from presentation.screens.registry import register
+import presentation.screens.mainMenu as mainMenu
 
 # Определяем идентификаторы экранов
 SHIP = 'КОРАБЛЬ'
