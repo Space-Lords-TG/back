@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from presentation.screens.registry import register
-import presentation.screens.mainMenu as mainMenu
-import presentation.screens.ship as shipScreens
+from src.presentation.screens.registry import register
+import src.presentation.screens.mainMenu as mainMenu
+import src.presentation.screens.ship as shipScreens
 
 # Определяем идентификаторы экранов
 PLANET = 'PLANET'

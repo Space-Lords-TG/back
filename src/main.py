@@ -3,11 +3,11 @@ import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
-import presentation.screens.mainMenu as mainMenu
-import presentation.screens.map as mapScreens
-import presentation.screens.ship as shipScreens
-import presentation.screens.arena as arenaScreens
-import presentation.screens.registry as registry
+import src.presentation.screens.mainMenu as mainMenu
+import src.presentation.screens.map as mapScreens
+import src.presentation.screens.ship as shipScreens
+import src.presentation.screens.arena as arenaScreens
+import src.presentation.screens.registry as registry
 
 # Настройка логирования
 logging.basicConfig(
@@ -60,7 +60,7 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
     await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
 def main():
-    token = os.environ['BOT_TOKEN']
+    token = os.getenv('BOT_TOKEN')
 
     # Создаем приложение
     application = Application.builder().token(token).build()
