@@ -6,8 +6,8 @@ on:
       - dev
 
 env:
-  REGISTRY: zhukovskiy
-  IMAGE_NAME: space-lords-backend
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE }}
 
 jobs:
   # testing:
