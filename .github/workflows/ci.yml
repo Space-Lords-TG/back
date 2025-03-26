@@ -63,8 +63,8 @@ jobs:
           context: .
           file: Dockerfile
           platforms: linux/arm64,linux/amd64
-          secrets: |
-            "BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
+          build-args: |
+            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
@@ -81,4 +81,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: cd app && docker-compose up -d backend
+          script: | 
+            cd app
+            docker-compose stop backend
+            docker system prune -f
+            docker-compose pull backend
+            docker-compose up -d backend
