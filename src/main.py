@@ -3,6 +3,7 @@ import logging
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
+from src.presentation.utils.getImage import *
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
 import src.presentation.screens.ship as shipScreens
@@ -25,7 +26,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     query = update.callback_query
     markup, text = mainMenu.get_default_menu(query)
-    await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    imageLink = getImage(mainMenu.DEFAULT)
+
+    await update.message.reply_photo(photo=imageLink, caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
