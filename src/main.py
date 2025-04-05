@@ -32,17 +32,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()  # отвечаем на callback
     screen_id = query.data
+    handler, match = registry.resolve_handler(screen_id)
 
-    handler = registry.handlers.get(screen_id)
-    # ID пользователя можно получить из запроса
-    print(query.from_user.id)
-
-    # Если экран не найден, можно вернуть сообщение об ошибке
     if not handler:
         await query.edit_message_text("Неизвестный экран.")
         return
 
-    markup, text = handler(query)
+    if match:
+        markup, text = handler(query, match)
+    else:
+        markup, text = handler(query)
+
     await query.edit_message_text(text=text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
     
@@ -56,11 +56,22 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
         update.message.reply_text("Неизвестная команда")
         return
     
-    markup, text = handler(commandName)
+    markup, text = handler(update.message)
     await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
+async def error_handler(update, context):
+    tb = ''.join(traceback.format_exception(None, context.error, context.error.__traceback__))
+    logger.error(f"‼Uncaught exception:\n{tb}")
+
+    if update and update.effective_chat:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"Ошибка:\n<code>{str(context.error)}</code>",
+            parse_mode=ParseMode.HTML
+        )
+
 def main():
-    token = os.getenv('BOT_TOKEN')
+    token = "7857132259:AAGh6Q5sAL6EA0NboMlGBaS8qzwlccf7HZs"
 
     # Создаем приложение
     application = Application.builder().token(token).build()
@@ -69,7 +80,8 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_standard_buttons))
     application.add_handler(CallbackQueryHandler(button_handler))
-
+    application.add_error_handler(error_handler)
+    
     # Запускаем бота
     application.run_polling()
 
