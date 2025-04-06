@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - dev
+      - ci_testing
 
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
