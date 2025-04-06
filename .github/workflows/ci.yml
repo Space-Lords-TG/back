@@ -87,3 +87,4 @@ jobs:
             docker system prune -f
             docker-compose pull backend-test
             docker-compose up -d backend-test
+            docker-compose logs -t --tail="50" backend-test
