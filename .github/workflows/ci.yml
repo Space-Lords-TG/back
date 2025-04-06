@@ -93,6 +93,6 @@ jobs:
             docker system prune -f
             docker-compose pull backend-test
             docker-compose up -d backend-test
-            sleep 10
+            sleep 5
             docker-compose ps backend-test
             docker-compose logs -t --tail="50" backend-test
