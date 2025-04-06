@@ -47,7 +47,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         markup, text = handler(query)
 
-    await query.edit_message_text(text=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    # await query.edit_message_text(text=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    await query.edit_message_caption(caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
     
 # Обработчик для стандартных кнопок меню.
@@ -60,8 +61,10 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
         update.message.reply_text("Неизвестная команда")
         return
     
+    imageLink = getImage(commandName)
     markup, text = handler(update.message)
-    await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    # await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    await update.message.reply_photo(photo=imageLink, caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
 
 async def error_handler(update, context):
     tb = ''.join(traceback.format_exception(None, context.error, context.error.__traceback__))
