@@ -95,4 +95,4 @@ jobs:
             docker-compose up -d backend-test
             sleep 10
             docker-compose ps backend-test
-            docker-compose logs --since 2m backend-test
+            docker-compose logs -t --tail="50" backend-test
