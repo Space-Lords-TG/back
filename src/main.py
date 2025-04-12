@@ -4,12 +4,17 @@ import traceback
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
+
 from src.presentation.utils.getImage import *
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
 import src.presentation.screens.ship as shipScreens
 import src.presentation.screens.arena as arenaScreens
 import src.presentation.screens.registry as registry
+
+from src.infrastructure.database import SessionLocal
+from src.application.player_service import PlayerService
+
 
 # Настройка логирования
 logging.basicConfig(
@@ -19,6 +24,17 @@ logger = logging.getLogger(__name__)
 
 # Обработчик команды /start, выводит главный экран
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    db = SessionLocal()
+    try:
+        player_id, username = update.message.from_user.id, update.message.from_user.username
+        service = PlayerService(db)
+        service.player_init(player_id, username)
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(context.error)}</code>", parse_mode=ParseMode.HTML)
+        return
+    finally:
+        db.close()
+
     reply_keyboard = [[arenaScreens.ARENA, mapScreens.MAP], [shipScreens.SHIP, mainMenu.DEFAULT]]
     reply_markup = ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
 
