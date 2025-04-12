@@ -15,6 +15,18 @@ class Player(Base):
     players_hulls = relationship("PlayerHull", back_populates="player")
     ships = relationship("Ship", back_populates="player")
 
+class PlayerResources(Base):
+    __tablename__ = 'player_resources'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False, unique=True)
+
+    metals = Column(Integer, nullable=False, default=0)
+    crystalls = Column(Integer, nullable=False, default=0)
+    gas = Column(Integer, nullable=False, default=0)
+
+    player = relationship("Player", backref="resources")
+
 class GunTemplate(Base):
     __tablename__ = 'gun_templates'
 
@@ -22,12 +34,12 @@ class GunTemplate(Base):
     name = Column(String(32), nullable=False)
 
     base_damage = Column(Numeric(7, 2), nullable=False)
-    base_crit_rate = Column(Numeric(7, 2), nullable=False)
+    base_crit_rate = Column(Numeric(7, 4), nullable=False)
     base_crit_damage = Column(Numeric(7, 2), nullable=False)
     base_speed = Column(Numeric(7, 2), nullable=False)
 
     gain_damage = Column(Numeric(7, 2), nullable=True)
-    gain_crit_rate = Column(Numeric(7, 2), nullable=True)
+    gain_crit_rate = Column(Numeric(7, 4), nullable=True)
     gain_crit_damage = Column(Numeric(7, 2), nullable=True)
     gain_speed = Column(Numeric(7, 2), nullable=True)
 
@@ -87,6 +99,7 @@ class Ship(Base):
     player_gun_id = Column(Integer, ForeignKey('players_guns.id'), nullable=False)
     health = Column(Numeric(7, 2), nullable=False)
     shields = Column(Numeric(7, 2), nullable=False)
+    repair_ends_at = Column(DateTime, nullable=True)
 
     player = relationship("Player", back_populates="ships")
     player_hull = relationship("PlayerHull")

@@ -1,35 +1,18 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List, Tuple
+from datetime import datetime, timedelta, timezone
+import pytz
 
 from src.infrastructure.models import (
     Player, Ship,
     PlayerGun, PlayerHull, HullTemplate,
-    GunTemplate
+    GunTemplate, PlayerResources
 )
 
 class ShipService:
     def __init__(self, db: Session):
         self.db = db
-
-    def get_active_ship(self, player_id: int) -> dict:
-        ship = self.db.execute(select(Ship).where(Ship.player_id == player_id)).scalar_one_or_none()
-        if not ship:
-            raise ValueError("Активный корабль не найден")
-
-        player_gun = self.db.get(PlayerGun, ship.player_gun_id)
-        player_hull = self.db.get(PlayerHull, ship.player_hull_id)
-
-        gun = self.db.get(GunTemplate, player_gun.gun_id)
-        hull = self.db.get(HullTemplate, player_hull.hull_id)
-
-        return {
-            "ship": ship,
-            "player_gun": player_gun,
-            "gun": gun,
-            "player_hull": player_hull,
-            "hull": hull
-        }
 
     def get_active_ship(self, player_id: int) -> dict:
         ship = self.db.execute(select(Ship).where(Ship.player_id == player_id)).scalar_one_or_none()
@@ -58,39 +41,69 @@ class ShipService:
         level_gun = data["player_gun"].current_level
         level_hull = data["player_hull"].current_level
 
+        power_gun = round(self.get_weapon_power(gun, level_gun), 2)
+        power_hull = round(self.get_hull_power(hull, level_hull), 2)
+
         return {
-            "name": gun.name,
-            "damage": self.calc(gun.base_damage, gun.gain_damage, level_gun),
-            "crit_rate": self.calc(gun.base_crit_rate, gun.gain_crit_rate, level_gun),
-            "crit_damage": self.calc(gun.base_crit_damage, gun.gain_crit_damage, level_gun),
-            "speed": self.calc(gun.base_speed, gun.gain_speed, level_gun),
-            "armor": self.calc(hull.base_armor, hull.gain_armor, level_hull),
-            "maneuver": self.calc(hull.base_maneuver, hull.gain_maneuver, level_hull),
-            "health": ship.health,
-            "max_health": hull.base_max_health,
-            "shields": ship.shields,
-            "power_score": self.calc_power_score(gun, level_gun) + self.calc_power_score(hull, level_hull)
+            # Gun
+            "name_gun": gun.name,
+            "damage_gun": round(self.calc(gun.base_damage, gun.gain_damage, level_gun), 2),
+            "crit_rate_gun": round(self.calc(gun.base_crit_rate, gun.gain_crit_rate, level_gun) * 100, 2),
+            "crit_damage_gun": round(self.calc(gun.base_crit_damage, gun.gain_crit_damage, level_gun), 2),
+            "speed_gun": round(self.calc(gun.base_speed, gun.gain_speed, level_gun), 2),
+            "level_gun": level_gun,
+            "power_gun": power_gun,
+
+            # Hull
+            "name_hull": hull.name,
+            "armor_hull": round(self.calc(hull.base_armor, hull.gain_armor, level_hull), 2),
+            "maneuver_hull": round(self.calc(hull.base_maneuver, hull.gain_maneuver, level_hull), 2),
+            "max_health_hull": round(self.calc(hull.base_max_health, hull.gain_max_health, level_hull), 2),
+            "shields_hull": round(self.calc(hull.base_max_shields, hull.gain_max_shields, level_hull), 2),
+            "level_hull": level_hull,
+            "power_hull": power_hull,
+
+            # Ship
+            "health": round(ship.health, 2),
+            "power_score": round(power_gun * power_hull, 2)
+        }
+
+    def get_weapon_stats(self, player_id: int) -> dict:
+        data = self.get_active_ship(player_id)
+        gun = data["gun"]
+        level = data["player_gun"].current_level
+
+        return {
+            "name_gun": gun.name,
+            "level_gun": level,
+            "damage_gun": round(self.calc(gun.base_damage, gun.gain_damage, level), 2),
+            "crit_rate_gun": round(self.calc(gun.base_crit_rate, gun.gain_crit_rate, level) * 100, 2),
+            "crit_damage_gun": round(self.calc(gun.base_crit_damage, gun.gain_crit_damage, level), 2),
+            "speed_gun": round(self.calc(gun.base_speed, gun.gain_speed, level), 2),
+            "power_gun": round(self.get_weapon_power(gun, level), 2)
+        }
+
+    def get_hull_stats(self, player_id: int) -> dict:
+        data = self.get_active_ship(player_id)
+        hull = data["hull"]
+        ship = data["ship"]
+        level = data["player_hull"].current_level
+
+        return {
+            "name_hull": hull.name,
+            "level_hull": level,
+            "armor_hull": round(self.calc(hull.base_armor, hull.gain_armor, level), 2),
+            "maneuver_hull": round(self.calc(hull.base_maneuver, hull.gain_maneuver, level), 2),
+            "max_health_hull": round(self.calc(hull.base_max_health, hull.gain_max_health, level), 2),
+            "shields_hull": round(self.calc(hull.base_max_shields, hull.gain_max_shields, level), 2),
+            "health": round(ship.health, 2),
+            "power_hull": round(self.get_hull_power(hull, level), 2)
         }
 
     def calc(self, base, gain, level):
-        return base + gain * (level - 1) if gain else base
-
-    def calc_power_score(self, obj, level):
-        if isinstance(obj, GunTemplate):
-            return (
-                self.calc(obj.base_damage, obj.gain_damage, level) +
-                self.calc(obj.base_crit_rate, obj.gain_crit_rate, level) * 10 +
-                self.calc(obj.base_crit_damage, obj.gain_crit_damage, level) * 2 +
-                self.calc(obj.base_speed, obj.gain_speed, level)
-            )
-        elif isinstance(obj, HullTemplate):
-            return (
-                self.calc(obj.base_armor, obj.gain_armor, level) +
-                self.calc(obj.base_max_shields, obj.gain_max_shields, level) +
-                self.calc(obj.base_max_health, obj.gain_max_health, level) +
-                self.calc(obj.base_maneuver, obj.gain_maneuver, level)
-            )
-        return 0
+        base = float(base)
+        gain = float(gain) if gain else 0
+        return base + gain * (level - 1)
 
     def get_available_weapons(self, player_id: int) -> List[Tuple[PlayerGun, GunTemplate]]:
         player_guns = self.db.execute(
@@ -115,10 +128,42 @@ class ShipService:
         if not player_gun:
             raise ValueError("Оружие игрока не найдено")
 
-        player_gun.current_level += 1
+        if player_gun.current_level >= 20:
+            return {
+                "can_upgrade": False,
+                "reason": "Максимальный уровень",
+                "level": 20
+            }
+
+        # Получаем ресурсы игрока
+        resources = self.db.execute(
+            select(PlayerResources).where(PlayerResources.player_id == player_id)
+        ).scalar_one_or_none()
+        if not resources:
+            raise ValueError("Ресурсы игрока не найдены")
+
+        gun = self.db.get(GunTemplate, player_gun.gun_id)
+        current_level = player_gun.current_level
+        next_level = current_level + 1
+
+        # Вычисляем мощь сейчас и на следующем уровне
+        power_now = self.get_weapon_power(gun, current_level)
+        power_next = self.get_weapon_power(gun, next_level)
+
+        cost = int(100 * (power_next ** 1.5 - power_now ** 1.5))
+
+        if resources.crystalls < cost:
+            return {
+                "can_upgrade": False,
+                "required": cost,
+                "available": resources.crystalls
+            }
+
+        resources.crystalls -= cost
+        player_gun.current_level = next_level
         self.db.commit()
 
-        return self.get_ship_stats(player_id)
+        return self.get_weapon_stats(player_id)
 
     def change_weapon(self, player_id: int, new_gun_id: int) -> dict:
         ship = self.db.execute(select(Ship).where(Ship.player_id == player_id)).scalar_one_or_none()
@@ -150,8 +195,49 @@ class ShipService:
         ship.player_gun_id = new_pg.id
         self.db.commit()
 
-        return self.get_ship_stats(player_id)
+        return self.get_weapon_stats(player_id)
 
+    def upgrade_hull(self, player_id: int) -> dict:
+        data = self.get_active_ship(player_id)
+        player_hull = data["player_hull"]
+        hull = data["hull"]
+
+        if player_hull.current_level >= 20:
+            return {
+                "can_upgrade": False,
+                "reason": "Корпус уже имеет максимальный уровень (20)."
+            }
+
+        current_level = player_hull.current_level
+        next_level = current_level + 1
+
+        power_now = self.get_hull_power(hull, current_level)
+        power_next = self.get_hull_power(hull, next_level)
+        cost = self.get_upgrade_cost(power_now, power_next)
+
+        resources = self.db.execute(
+            select(PlayerResources).where(PlayerResources.player_id == player_id)
+        ).scalar_one_or_none()
+
+        if not resources:
+            raise ValueError("Ресурсы игрока не найдены.")
+
+        if resources.metals < cost:
+            return {
+                "can_upgrade": False,
+                "reason": f"Недостаточно металлов. Нужно: {cost}, у вас: {resources.metals}"
+            }
+
+        # списание металлов и апгрейд уровня
+        resources.metals -= cost
+        player_hull.current_level = next_level
+
+        self.recalculate_stats(data["ship"])
+        self.db.commit()
+
+        stats = self.get_hull_stats(player_id)
+        stats["can_upgrade"] = True
+        return stats
 
     def change_hull(self, player_id: int, new_hull_id: int) -> dict:
         ship = self.db.execute(select(Ship).where(Ship.player_id == player_id)).scalar_one_or_none()
@@ -182,8 +268,7 @@ class ShipService:
         self.recalculate_stats(ship)
         self.db.commit()
 
-        return self.get_ship_stats(player_id)
-
+        return self.get_hull_stats(player_id)
 
     def recalculate_stats(self, ship: Ship):
         player_hull = self.db.get(PlayerHull, ship.player_hull_id)
@@ -198,15 +283,67 @@ class ShipService:
         hull = data["hull"]
         level = data["player_hull"].current_level
 
-        max_health = self.calc(hull.base_max_health, hull.gain_max_health, level)
+        max_health = float(self.calc(hull.base_max_health, hull.gain_max_health, level))
+        current_health = float(ship.health)
 
-        if ship.health >= max_health:
-            return None  # Здоровье полное — не лечим
+        if current_health >= max_health:
+            raise ValueError("Корпус уже полностью отремонтирован!")
 
-        ship.health = max_health
+        damage_percent = (max_health - current_health) / max_health
+        cost = int(damage_percent * 100)
+        cooldown_minutes = int(damage_percent * 10)
+
+        player_resources = self.db.execute(
+            select(PlayerResources).where(PlayerResources.player_id == player_id)
+        ).scalar_one_or_none()
+
+        if not player_resources:
+            raise ValueError("Ресурсы игрока не найдены.")
+
+        if player_resources.crystalls < cost:
+            if player_resources.crystalls < cost:
+                return {
+                    "can_repair": False,
+                    "required": cost,
+                    "available": player_resources.crystalls
+                }
+
+        player_resources.crystalls -= cost
+
+        # Задаём дату окончания ремонта в UTC с таймзоной
+        ship.repair_ends_at = datetime.now(timezone.utc) + timedelta(minutes=cooldown_minutes)
+
         self.db.commit()
 
         return {
-            "health": ship.health,
-            "max_health": max_health
+            "restored_health": round(max_health),
+            "max_health": round(max_health),
+            "cost": cost,
+            "cooldown_minutes": cooldown_minutes,
+            "cooldown_seconds": int(damage_percent * 600)
         }
+
+    # Расчет мощностей 
+    def get_weapon_power(self, gun: GunTemplate, level: int) -> float: 
+        damage = self.calc(gun.base_damage, gun.gain_damage, level)
+        crit_rate = self.calc(gun.base_crit_rate, gun.gain_crit_rate, level) / 100
+        crit_damage = self.calc(gun.base_crit_damage, gun.gain_crit_damage, level)
+        speed = self.calc(gun.base_speed, gun.gain_speed, level)
+
+        return speed / 100 * (damage * (1 + crit_damage * crit_rate)) # Мощь пушки = Скорость / 100 * (Урон * (1 + Крит. урон * Крит. частота))
+
+
+    def get_hull_power(self, hull: HullTemplate, level: int) -> float:
+        health = float(self.calc(hull.base_max_health, hull.gain_max_health, level))
+        shields = float(self.calc(hull.base_max_shields, hull.gain_max_shields, level))
+        armor = float(self.calc(hull.base_armor, hull.gain_armor, level))
+        maneuver = self.calc(hull.base_maneuver, hull.gain_maneuver, level) / 100
+
+        if armor >= 100:
+            armor = 99.9  # чтобы не делить на 0
+
+        survivability = (health / (100 - armor)) + (shields / 100)
+        return 10 * (1 + maneuver) * survivability
+
+    def get_upgrade_cost(self, old_power: float, new_power: float) -> int:
+        return round(100 * (new_power ** 1.5))
