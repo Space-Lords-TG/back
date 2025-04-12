@@ -97,8 +97,6 @@ def main():
 
     token = os.getenv('BOT_TOKEN')
 
-    # token = "7857132259:AAGh6Q5sAL6EA0NboMlGBaS8qzwlccf7HZs"
-
     # Создаем приложение
     application = Application.builder().token(token).build()
 

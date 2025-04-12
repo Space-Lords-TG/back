@@ -1,3 +1,4 @@
 python-telegram-bot==21.11.1
 SQLAlchemy==2.0.40
 pg8000==1.31.2
+pytz==2025.2
