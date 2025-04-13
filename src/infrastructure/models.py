@@ -21,9 +21,9 @@ class PlayerResources(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False, unique=True)
 
-    metals = Column(Integer, nullable=False, default=0)
-    crystalls = Column(Integer, nullable=False, default=0)
-    gas = Column(Integer, nullable=False, default=0)
+    metals = Column(Integer, nullable=False, default=10000)
+    crystalls = Column(Integer, nullable=False, default=10000)
+    gas = Column(Integer, nullable=False, default=10000)
 
     player = relationship("Player", backref="resources")
 
@@ -48,10 +48,10 @@ class GunTemplate(Base):
 class PlayerGun(Base):
     __tablename__ = 'players_guns'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False)
     gun_id = Column(Integer, ForeignKey('gun_templates.id'), nullable=False)
-    current_level = Column(Integer, default=1)
+    current_level = Column(Integer, default=0)
     is_equipped = Column(Boolean, default=False)
     template = relationship("GunTemplate", back_populates="players_guns")
 
@@ -80,10 +80,10 @@ class HullTemplate(Base):
 class PlayerHull(Base):
     __tablename__ = 'players_hulls'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False)
     hull_id = Column(Integer, ForeignKey('hull_templates.id'), nullable=False)
-    current_level = Column(Integer, default=1)
+    current_level = Column(Integer, default=0)
     is_equipped = Column(Boolean, default=False)
 
     player = relationship("Player", back_populates="players_hulls")
@@ -93,7 +93,7 @@ class PlayerHull(Base):
 class Ship(Base):
     __tablename__ = 'ships'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False)
     player_hull_id = Column(Integer, ForeignKey('players_hulls.id'), nullable=False)
     player_gun_id = Column(Integer, ForeignKey('players_guns.id'), nullable=False)

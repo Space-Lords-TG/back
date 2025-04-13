@@ -30,7 +30,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         service = PlayerService(db)
         service.player_init(player_id, username)
     except Exception as e:
-        await update.message.reply_text(f"Ошибка:\n<code>{str(context.error)}</code>", parse_mode=ParseMode.HTML)
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", parse_mode=ParseMode.HTML)
+        print(e)
         return
     finally:
         db.close()
@@ -95,7 +96,8 @@ async def error_handler(update, context):
 
 def main():
 
-    token = os.getenv('BOT_TOKEN')
+    # token = os.getenv('BOT_TOKEN')
+    token = "1988108864:AAGdzzAxbUsOPfQMXcV5WruWY47MHYFeJCY"
 
     # Создаем приложение
     application = Application.builder().token(token).build()
