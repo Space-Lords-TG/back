@@ -96,8 +96,7 @@ async def error_handler(update, context):
 
 def main():
 
-    # token = os.getenv('BOT_TOKEN')
-    token = "1988108864:AAGdzzAxbUsOPfQMXcV5WruWY47MHYFeJCY"
+    token = os.getenv('BOT_TOKEN')
 
     # Создаем приложение
     application = Application.builder().token(token).build()
