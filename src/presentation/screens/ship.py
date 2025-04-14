@@ -97,7 +97,7 @@ def get_ship_weapon(query: CallbackQuery):
 
         text = \
 f"""<b>Оружие</b>
-        
+
 На данный момент установлено:
 <b>{stats['name_gun']}</b>
 Уровень: {level}
@@ -340,7 +340,7 @@ def get_ship_body(query: CallbackQuery):
         ]
 
         text = f"""<b>Корпус:</b>
-        
+
 На данный момент установлен:
 <b>{stats['name_hull']}</b>
 Уровень: {stats['level_hull']}
