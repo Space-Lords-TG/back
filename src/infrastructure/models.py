@@ -1,8 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, BigInteger, Numeric
+from sqlalchemy import Column, Integer, String, \
+    ForeignKey, DateTime, Boolean, BigInteger, Numeric
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 
+
 Base = declarative_base()
+
 
 class Player(Base):
     __tablename__ = 'players'
@@ -15,17 +18,20 @@ class Player(Base):
     players_hulls = relationship("PlayerHull", back_populates="player")
     ships = relationship("Ship", back_populates="player")
 
+
 class PlayerResources(Base):
     __tablename__ = 'player_resources'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    player_id = Column(BigInteger, ForeignKey('players.id'), nullable=False, unique=True)
+    player_id = Column(BigInteger, ForeignKey('players.id'), \
+                       nullable=False, unique=True)
 
     metals = Column(Integer, nullable=False, default=10000)
     crystalls = Column(Integer, nullable=False, default=10000)
     gas = Column(Integer, nullable=False, default=10000)
 
     player = relationship("Player", backref="resources")
+
 
 class GunTemplate(Base):
     __tablename__ = 'gun_templates'
@@ -44,6 +50,7 @@ class GunTemplate(Base):
     gain_speed = Column(Numeric(7, 2), nullable=True)
 
     players_guns = relationship("PlayerGun", back_populates="template")
+
 
 class PlayerGun(Base):
     __tablename__ = 'players_guns'

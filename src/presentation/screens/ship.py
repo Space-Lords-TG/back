@@ -1,6 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
 from src.presentation.screens.registry import register, register_pattern
-import src.presentation.screens.mainMenu as mainMenu
 from src.application.ship_service import ShipService
 from src.infrastructure.database import SessionLocal
 from datetime import datetime, timezone
@@ -71,7 +70,7 @@ def get_ship(message: Message):
     finally:
         db.close()
 
-# ОРУЖИЕ =============================================================================
+# ОРУЖИЕ ======================================================================
 
 # Функция, возвращающая разметку для оружия
 # Кнопка в меню "КОРАБЛЬ" -> "Оружие"
@@ -96,7 +95,8 @@ def get_ship_weapon(query: CallbackQuery):
             [InlineKeyboardButton("Назад", callback_data=SHIP)]
         ]
 
-        text = f"""<b>Оружие</b>
+        text = \
+f"""<b>Оружие</b>
         
 На данный момент установлено:
 <b>{stats['name_gun']}</b>
@@ -360,9 +360,9 @@ def get_ship_body(query: CallbackQuery):
 
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
-
     finally:
         db.close()
+
 
 # Функция, возвращающая разметку для замены корпуса
 # Кнопка "Корабль" -> "Корпус" -> "Заменить"
