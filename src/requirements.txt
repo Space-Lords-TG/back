@@ -1,3 +1,6 @@
 python-telegram-bot==21.11.1
 SQLAlchemy==2.0.40
 pg8000==1.31.2
+pytz==2025.2
+flake8==6.1.0
+black==23.12.0

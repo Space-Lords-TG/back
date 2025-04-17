@@ -3,9 +3,10 @@ import logging
 import traceback
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CallbackQueryHandler, \
+    CommandHandler, ContextTypes, MessageHandler, filters
 
-from src.presentation.utils.getImage import *
+from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
 import src.presentation.screens.ship as shipScreens
@@ -22,30 +23,38 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 # Обработчик команды /start, выводит главный экран
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = SessionLocal()
     try:
-        player_id, username = update.message.from_user.id, update.message.from_user.username
+        player_id, username = update.message.from_user.id, \
+            update.message.from_user.username
         service = PlayerService(db)
         service.player_init(player_id, username)
     except Exception as e:
-        await update.message.reply_text(f"Ошибка:\n<code>{str(context.error)}</code>", parse_mode=ParseMode.HTML)
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        print(e)
         return
     finally:
         db.close()
 
-    reply_keyboard = [[arenaScreens.ARENA, mapScreens.MAP], [shipScreens.SHIP, mainMenu.DEFAULT]]
+    reply_keyboard = [[arenaScreens.ARENA, mapScreens.MAP], \
+                      [shipScreens.SHIP, mainMenu.DEFAULT]]
     reply_markup = ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
 
     # Отправляем сообщение со стандартной клавиатурой
-    await update.message.reply_text("Добро пожаловать!", reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    await update.message.reply_text("Добро пожаловать!", \
+                                    reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     
     query = update.callback_query
     markup, text = mainMenu.get_default_menu(query)
     imageLink = getImage(mainMenu.DEFAULT)
 
-    await update.message.reply_photo(photo=imageLink, caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    await update.message.reply_photo(photo=imageLink, \
+                                     caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -63,12 +72,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         markup, text = handler(query)
 
-    # await query.edit_message_text(text=text, reply_markup=markup, parse_mode=ParseMode.HTML)
-    await query.edit_message_caption(caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    await query.edit_message_caption(caption=text, \
+                                     reply_markup=markup, parse_mode=ParseMode.HTML)
 
-    
+
 # Обработчик для стандартных кнопок меню.
-# Он обрабатывает входящие сообщения с текстом кнопок и отправляет соответствующие ответы.
+# Он обрабатывает входящие сообщения с текстом кнопок 
+# и отправляет соответствующие ответы.
 async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     commandName = update.message.text
     handler = registry.handlers.get(commandName)
@@ -76,14 +86,16 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
     if not handler:
         update.message.reply_text("Неизвестная команда")
         return
-    
+
     imageLink = getImage(commandName)
     markup, text = handler(update.message)
-    # await update.message.reply_text(text, reply_markup=markup, parse_mode=ParseMode.HTML)
-    await update.message.reply_photo(photo=imageLink, caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    await update.message.reply_photo(photo=imageLink, caption=text, \
+                                     reply_markup=markup, parse_mode=ParseMode.HTML)
+
 
 async def error_handler(update, context):
-    tb = ''.join(traceback.format_exception(None, context.error, context.error.__traceback__))
+    tb = ''.join(traceback.format_exception(None, context.error, \
+                                            context.error.__traceback__))
     logger.error(f"‼Uncaught exception:\n{tb}")
 
     if update and update.effective_chat:
@@ -93,23 +105,24 @@ async def error_handler(update, context):
             parse_mode=ParseMode.HTML
         )
 
+
 def main():
 
     token = os.getenv('BOT_TOKEN')
-
-    # token = "7857132259:AAGh6Q5sAL6EA0NboMlGBaS8qzwlccf7HZs"
 
     # Создаем приложение
     application = Application.builder().token(token).build()
 
     # Регистрируем обработчики команд и callback'ов
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_standard_buttons))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, \
+                                           handle_standard_buttons))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
-    
+
     # Запускаем бота
     application.run_polling()
+
 
 if __name__ == '__main__':
     main()

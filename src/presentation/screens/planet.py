@@ -11,22 +11,29 @@ PLANET_UPGRADE = 'PLANET_UPGRADE'
 POST_PLANET_UPGRADE = 'POST_PLANET_UPGRADE'
 PLANET_ENEMY = 'PLANET_ENEMY'
 
+
 # Функция, возвращающая разметку для планеты
 @register(PLANET)
 def get_planet(query: CallbackQuery):
     # Проверка состояние игрока
 
-    # Определяем, какой именно экран показывать в зависимости от отношения игрока к планете
+    # Определяем, какой именно экран показывать в 
+    # зависимости от отношения игрока к планете
     
     return get_free_planet(query)
+
 
 # Свободная планета
 def get_free_planet(query: CallbackQuery):
     # Проверка состояние игрока
 
     keyboard = [
-        [InlineKeyboardButton("Построить аванпост", callback_data=POST_PLANET_CLAIM)],
-        [InlineKeyboardButton("Назад", callback_data=mainMenu.DEFAULT)]
+        [InlineKeyboardButton(
+            "Построить аванпост",
+            callback_data=POST_PLANET_CLAIM)],
+        [InlineKeyboardButton(
+            "Назад", 
+            callback_data=mainMenu.DEFAULT)]
     ]
     
     return InlineKeyboardMarkup(keyboard), \
@@ -46,6 +53,7 @@ def get_free_planet(query: CallbackQuery):
 20 топлива
 """
 
+
 # Отправляет запрос на постройку аванпоста на планете
 @register(POST_PLANET_CLAIM)
 def post_planet_claim(query: CallbackQuery):
@@ -56,12 +64,16 @@ def post_planet_claim(query: CallbackQuery):
     
     return get_owned_planet(query)
 
+
 # Своя планета
 def get_owned_planet(query: CallbackQuery):
     # Проверка состояния игрока
 
     keyboard = [
-        [InlineKeyboardButton("Собрать ресурсы", callback_data=POST_PLANET_GATHER), InlineKeyboardButton("Улучшить", callback_data=PLANET_UPGRADE)],
+        [InlineKeyboardButton(
+            "Собрать ресурсы", 
+            callback_data=POST_PLANET_GATHER), 
+            InlineKeyboardButton("Улучшить", callback_data=PLANET_UPGRADE)],
         [InlineKeyboardButton("Назад", callback_data=mainMenu.DEFAULT)]
     ]
     
@@ -82,6 +94,7 @@ def get_owned_planet(query: CallbackQuery):
 Вы владеете этой планетой.
 """
 
+
 # Отправляет запрос на сбор ресурсов
 @register(POST_PLANET_GATHER)
 def post_planet_gather(query: CallbackQuery):
@@ -92,13 +105,18 @@ def post_planet_gather(query: CallbackQuery):
     
     return get_owned_planet(query)
 
+
 @register(PLANET_UPGRADE)
 def get_planet_upgrade(query: CallbackQuery):
     # Проверка состояния игрока
 
     keyboard = [
-        [InlineKeyboardButton("Подтвердить", callback_data=POST_PLANET_UPGRADE)],
-        [InlineKeyboardButton("Назад", callback_data=PLANET)]
+        [InlineKeyboardButton(
+            "Подтвердить",
+            callback_data=POST_PLANET_UPGRADE)],
+        [InlineKeyboardButton(
+            "Назад", 
+            callback_data=PLANET)]
     ]
     
     return InlineKeyboardMarkup(keyboard), \
@@ -117,6 +135,7 @@ def get_planet_upgrade(query: CallbackQuery):
 80 металлов
 """
 
+
 # Отправляет запрос на улучшение планеты
 @register(POST_PLANET_UPGRADE)
 def post_planet_upgrade(query: CallbackQuery):
@@ -127,13 +146,18 @@ def post_planet_upgrade(query: CallbackQuery):
     
     return get_owned_planet(query)
 
+
 @register(PLANET_ENEMY)
 def get_enemy_planet(query: CallbackQuery):
     # Проверка состояния игрока
 
     keyboard = [
-        [InlineKeyboardButton("Захватить планету (бой)", callback_data=POST_PLANET_UPGRADE)],
-        [InlineKeyboardButton("Назад", callback_data=mainMenu.DEFAULT)]
+        [InlineKeyboardButton(
+            "Захватить планету (бой)", 
+            callback_data=POST_PLANET_UPGRADE)],
+        [InlineKeyboardButton(
+            "Назад", 
+            callback_data=mainMenu.DEFAULT)]
     ]
     
     return InlineKeyboardMarkup(keyboard), \
@@ -156,6 +180,7 @@ def get_enemy_planet(query: CallbackQuery):
 # Определяем идентификаторы экранов
 PLANET_FIGHT = 'PLANET_FIGHT'
 
+
 # Функция, возвращающая разметку для арены
 @register(PLANET_FIGHT)
 def get_planet_fight(query: CallbackQuery):
@@ -174,7 +199,8 @@ def get_planet_fight(query: CallbackQuery):
 
 Вы: DeadlyParkur (220 💪)
 Противник: Aboba1337 (228 💪)
-Статистика боя:Нанесено урона: 1337Получено урона: 1231Раундов: 17Оставшаяся прочность: 228 (18%)
+Статистика боя:Нанесено урона: \
+    1337Получено урона: 1231Раундов: 17Оставшаяся прочность: 228 (18%)
 Итог: победа!
 Вы захватили планету.
 """
