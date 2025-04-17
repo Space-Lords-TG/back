@@ -1,5 +1,9 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from src.presentation.screens.registry import register
+from src.application.ship_service import ShipService
+from src.infrastructure.database import SessionLocal
+from datetime import datetime, timezone
+from pytz import timezone as pytz_timezone
 
 # Определяем идентификаторы экранов
 ARENA = 'АРЕНА'
@@ -38,15 +42,29 @@ def get_arena(query: CallbackQuery):
 # Функция, возвращающая разметку для арены
 @register(ARENA_QUEUE)
 def get_queue(query: CallbackQuery):
-    # Проверка состояние игрока
+    db = SessionLocal()
+    try:
+        player_id = query.from_user.id
+        service = ShipService(db)
+        data = service.get_active_ship(player_id)
+        ship = data["ship"]
 
-    # Отправка запроса на сервер (чтобы встать в очередь)
+        # Проверка: корабль на ремонте
+        if ship.repair_ends_at and ship.repair_ends_at > datetime.now(timezone.utc):
+            moscow_time = ship.repair_ends_at.astimezone(pytz_timezone("Europe/Moscow"))
+            time_str = moscow_time.strftime('%H:%M:%S')
+            text = f"""<b>Ваш корабль сейчас на ремонте!</b>
 
-    keyboard = [
-        [InlineKeyboardButton("Выйти из очереди", callback_data=ARENA)]
-    ]
-    
-    return InlineKeyboardMarkup(keyboard), \
+Вы не можете участвовать в битве, пока ремонт не завершён.
+
+Завершение ремонта: <b>{time_str}</b>
+"""
+            keyboard = [[InlineKeyboardButton("Назад", callback_data=ARENA)]]
+            return InlineKeyboardMarkup(keyboard), text
+
+        # Основной интерфейс арены
+        keyboard = [[InlineKeyboardButton("Выйти из очереди", callback_data=ARENA)]]
+        return InlineKeyboardMarkup(keyboard), \
 """Арена
 
 <b>Поиск противника...</b>
@@ -62,3 +80,8 @@ def get_queue(query: CallbackQuery):
 
 Вы находитесь в очереди.
 """
+
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()

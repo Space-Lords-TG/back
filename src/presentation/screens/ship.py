@@ -243,8 +243,9 @@ def get_ship_weapon_change(query: CallbackQuery):
 
         for pg, gun in available_guns:
             if pg.id != current_pg.id:
+                label = f"{gun.name} ({pg.current_level} уровень)"
                 keyboard.append([
-                    InlineKeyboardButton(gun.name, callback_data=f"{POST_SHIP_WEAPON}_{gun.id}")
+                    InlineKeyboardButton(label, callback_data=f"{POST_SHIP_WEAPON}_{gun.id}")
                 ])
 
         keyboard.append([InlineKeyboardButton("Назад", callback_data=SHIP_WEAPON)])
@@ -374,13 +375,17 @@ def get_ship_hull_change(query: CallbackQuery):
         service = ShipService(db)
 
         stats = service.get_hull_stats(player_id)
-        available_hulls = service.get_available_hulls(player_id)
+        current_data = service.get_active_ship(player_id)
+        current_ph = current_data["player_hull"]
 
+        available_hulls = service.get_available_hulls(player_id)
         keyboard = []
-        for hull in available_hulls:
-            if hull.name != stats['name_hull']:
+
+        for ph, hull in available_hulls:
+            if ph.id != current_ph.id:
+                label = f"{hull.name} ({ph.current_level} уровень)"
                 keyboard.append([
-                    InlineKeyboardButton(hull.name, callback_data=f"{POST_SHIP_BODY}_{hull.id}")
+                    InlineKeyboardButton(label, callback_data=f"{POST_SHIP_BODY}_{hull.id}")
                 ])
 
         keyboard.append([InlineKeyboardButton("Назад", callback_data=SHIP_BODY)])
@@ -405,7 +410,6 @@ def get_ship_hull_change(query: CallbackQuery):
 
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
-
     finally:
         db.close()
 
@@ -609,9 +613,11 @@ def get_ship_repair(query: CallbackQuery):
 """
                 return InlineKeyboardMarkup(keyboard), text
 
-            cost = int(damage_percent * 100)
-            cooldown_total_seconds = int(damage_percent * 600)
+            preview = service.repair_ship(player_id, simulate=True)
 
+            cost_metals = preview["cost_metals"]
+            cost_crystalls = preview["cost_crystalls"]
+            cooldown_total_seconds = preview["cooldown_seconds"]
             cooldown_minutes = cooldown_total_seconds // 60
             cooldown_seconds = cooldown_total_seconds % 60
 
@@ -626,7 +632,8 @@ def get_ship_repair(query: CallbackQuery):
 {current_health:.0f} / {max_health:.0f} ({(current_health / max_health * 100):.1f}%)
 
 Стоимость ремонта:
-{cost} кристаллов
+{cost_metals} металлов
+{cost_crystalls} кристаллов
 
 Время ремонта:
 {cooldown_minutes} мин {cooldown_seconds} сек
@@ -649,11 +656,11 @@ def post_ship_repair(query: CallbackQuery):
         result = service.repair_ship(player_id)
         if not result.get("can_repair", True):
             keyboard = [[InlineKeyboardButton("Назад", callback_data=SHIP_BODY)]]
-            text = f"""<b>Недостаточно кристаллов</b>
+            text = f"""<b>Недостаточно ресурсов</b>
 
-        Нужно: {result['required']}
-        У вас: {result['available']}
-        """
+Нужно: {result['required_metals']} / Есть: {result['available_metals']}
+Нужно: {result['required_crystalls']} / Есть: {result['available_crystalls']}
+"""
             return InlineKeyboardMarkup(keyboard), text
 
         minutes = result['cooldown_seconds'] // 60
@@ -663,9 +670,10 @@ def post_ship_repair(query: CallbackQuery):
 
         text = f"""<b>Ремонт запущен!</b>
 
-Здоровье будет восстановлено: {result['restored_health']} / {result['max_health']}
-Списано кристаллов: {result['cost']}
-Ожидаемое время завершения: {minutes} мин {seconds} сек
+Восстановится здоровье: {result['restored_health']} / {result['max_health']}
+Списано кристаллов: {result['cost_crystalls']}
+Списано металлов: {result['cost_metals']}
+Завершение через: {minutes} мин {seconds} сек
 """
         return InlineKeyboardMarkup(keyboard), text
 
