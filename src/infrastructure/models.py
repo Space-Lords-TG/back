@@ -111,3 +111,13 @@ class Ship(Base):
     player = relationship("Player", back_populates="ships")
     player_hull = relationship("PlayerHull")
     player_gun = relationship("PlayerGun")
+
+
+class UTMtag(Base):
+    __tablename__ = 'utm_tags'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    tag = Column(String(64), nullable=False)  # utm_tag
+    created_at = Column(DateTime, default=datetime.utcnow)
+    used = Column(Integer, default=0)
+

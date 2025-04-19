@@ -6,15 +6,19 @@ from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, \
     CommandHandler, ContextTypes, MessageHandler, filters
 
+from src.application.config_loader import config
+
 from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
 import src.presentation.screens.ship as shipScreens
 import src.presentation.screens.arena as arenaScreens
+import src.presentation.screens.admin as adminScreens
 import src.presentation.screens.registry as registry
 
 from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
+from src.application.utm_service import UtmService
 
 
 # Настройка логирования
@@ -22,7 +26,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 logger = logging.getLogger(__name__)
-
 
 # Обработчик команды /start, выводит главный экран
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -32,6 +35,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update.message.from_user.username
         service = PlayerService(db)
         service.player_init(player_id, username)
+
+        utmService = UtmService(db)
+        utm_tag = context.args[0]
+        utmService.increment_utm_usage(utm_tag)
     except Exception as e:
         await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
                                         parse_mode=ParseMode.HTML)
@@ -54,6 +61,55 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_photo(photo=imageLink, \
                                      caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    
+
+# Обработчик команды /admin
+async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+    
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    message = update.message
+    markup, text = adminScreens.get_admin(message)
+    imageLink = getImage(adminScreens.ADMIN)
+
+    await update.message.reply_photo(photo=imageLink, \
+                                    caption=text, reply_markup=markup, parse_mode=ParseMode.HTML)
+    
+
+# Обработчик команды /utm
+async def utm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+    
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    db = SessionLocal()
+    try:
+        text = update.message.text
+        tag = text[len("/utm "):].strip()
+
+        if not tag:
+            raise ValueError("Не задано название метки UTM")
+
+        service = UtmService(db)
+        service.create_utm(tag)
+
+        bot_name = config["admins"]["bot_name"]
+        utm_link = f"https://t.me/{bot_name}?start={tag}"
+
+        await update.message.reply_text(f"Сгенерирован UTM:\n<code>{utm_link}</code>", \
+                                        parse_mode=ParseMode.HTML)
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        print(e)
+        return
+    finally:
+        db.close()
 
 
 # Обработчик нажатий на inline кнопки
@@ -115,6 +171,8 @@ def main():
 
     # Регистрируем обработчики команд и callback'ов
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("admin", admin))
+    application.add_handler(CommandHandler("utm", utm))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, \
                                            handle_standard_buttons))
     application.add_handler(CallbackQueryHandler(button_handler))
