@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List, Tuple
 from datetime import datetime, timedelta, timezone
-import pytz
+# import pytz
 from src.application.config_loader import config
 
 from src.infrastructure.models import (
