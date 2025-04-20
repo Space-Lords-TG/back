@@ -16,6 +16,9 @@ import src.presentation.screens.registry as registry
 from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
 
+from threading import Thread
+from src.arena_matchmaker import run_arena_matchmaking
+import asyncio
 
 # Настройка логирования
 logging.basicConfig(
@@ -109,7 +112,7 @@ async def error_handler(update, context):
 def main():
 
     token = os.getenv('BOT_TOKEN')
-
+    
     # Создаем приложение
     application = Application.builder().token(token).build()
 
@@ -125,4 +128,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # Запуск фонового потока поиска боёв
+    asyncio.get_event_loop().create_task(run_arena_matchmaking())
     main()
