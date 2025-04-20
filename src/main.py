@@ -25,6 +25,9 @@ from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
 
+from threading import Thread
+from src.arena_matchmaker import run_arena_matchmaking
+import asyncio
 
 # Настройка логирования
 logging.basicConfig(
@@ -42,8 +45,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         service.player_init(player_id, username)
 
         utmService = UtmService(db)
-        utm_tag = context.args[0]
-        utmService.increment_utm_usage(utm_tag)
+        if len(context.args):
+            utm_tag = context.args[0]
+            utmService.increment_utm_usage(utm_tag)
     except Exception as e:
         await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
                                         parse_mode=ParseMode.HTML)
@@ -358,4 +362,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # Запуск фонового потока поиска боёв
+    asyncio.get_event_loop().create_task(run_arena_matchmaking())
     main()

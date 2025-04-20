@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, \
     ForeignKey, DateTime, Boolean, BigInteger, Numeric
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
-
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -17,6 +17,7 @@ class Player(Base):
     players_guns = relationship("PlayerGun", back_populates="player")
     players_hulls = relationship("PlayerHull", back_populates="player")
     ships = relationship("Ship", back_populates="player")
+    arena_status = relationship("ArenaQueue", back_populates="player", uselist=False)
 
 
 class PlayerResources(Base):
@@ -112,6 +113,21 @@ class Ship(Base):
     player_hull = relationship("PlayerHull")
     player_gun = relationship("PlayerGun")
 
+class ArenaQueue(Base):
+    __tablename__ = "arena_queue"
+
+    player_id = Column(BigInteger, ForeignKey("players.id"), primary_key=True)
+    joined_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
+
+    player = relationship("Player", back_populates="arena_status")
+
+class ArenaFight(Base):
+    __tablename__ = 'arena_fights'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    player1_id = Column(BigInteger, nullable=False)
+    player2_id = Column(BigInteger, nullable=False)
+    result = Column(String(10), nullable=False)
 
 class UTMtag(Base):
     __tablename__ = 'utm_tags'
