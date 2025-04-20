@@ -1,10 +1,15 @@
 import os
 import logging
 import traceback
-from telegram import Update, ReplyKeyboardMarkup
+import datetime
+
+from telegram import Update, ReplyKeyboardMarkup,  \
+    InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, \
-    CommandHandler, ContextTypes, MessageHandler, filters
+    CommandHandler, ContextTypes, MessageHandler, filters, \
+        ConversationHandler
+
 
 from src.application.config_loader import config
 
@@ -112,10 +117,175 @@ async def utm(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.close()
 
 
+async def get_utm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    db = SessionLocal()
+    try:
+        text = update.message.text
+        tag = text[len("/get_utm "):].strip()
+
+        service = UtmService(db)
+        used_count = service.get_utm_used_count(tag=tag)
+        if used_count == None:
+                await update.message.reply_text(f"Метка <code>{tag}</code> еще не создана", \
+                                        parse_mode=ParseMode.HTML)
+                return
+
+        if not tag:
+            raise ValueError("Не задано название метки UTM")
+
+        await update.message.reply_text(f"Количество регистраций в боте по метке:\n<code>{used_count}</code>", \
+                                        parse_mode=ParseMode.HTML)
+
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        print(e)
+        return
+    finally:
+        db.close()
+
+
+async def get_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    db = SessionLocal()
+    try:
+        text = update.message.text
+        interval = text[len("/get_users "):].strip()
+
+        if not interval:
+            raise ValueError("Не указан интервал времени (all/year/month/week/day)")
+
+        match interval:
+            case 'all':
+                # For 'all', we'll use a very large interval
+                delta = datetime.timedelta(days=36500)  # 100 years
+                message = "Общее количество пользователей"
+            case 'year':
+                delta = datetime.timedelta(days=365)
+                message = "Количество пользователей за год"
+            case 'month':
+                delta = datetime.timedelta(days=30)
+                message = "Количество пользователей за месяц"
+            case 'week':
+                delta = datetime.timedelta(weeks=1)
+                message = "Количество пользователей за неделю"
+            case 'day':
+                delta = datetime.timedelta(days=1)
+                message = "Количество пользователей за день"
+            case _:
+                raise ValueError("Неверный интервал. Используйте: all/year/month/week/day")
+
+        service = PlayerService(db=db)
+        used_count = service.get_new_users_count(interval=delta)
+
+        await update.message.reply_text(f"Количество регистраций:\n<code>{used_count}</code>", \
+                                        parse_mode=ParseMode.HTML)
+
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        print(e)
+        return
+    finally:
+        db.close()
+
+async def get_user_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+    
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    text = update.message.text
+    message = text[len("/get_user_info "):].strip()
+
+    if not message:
+        raise ValueError("Не указан игрок")
+    
+    db = SessionLocal()
+    try:
+        service = PlayerService(db=db)
+        # players = service.
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
+            parse_mode=ParseMode.HTML
+        )
+        logger.error(f"Broadcast error: {str(e)}")
+    finally:
+        db.close()
+
+async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    player_id = update.message.from_user.id
+    
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    text = update.message.text
+    message = text[len("/broadcast "):].strip()
+
+    if not message:
+        raise ValueError("Не указано сообщение")
+
+    db = SessionLocal()
+    try:
+        service = PlayerService(db=db)
+        players = service.get_all()
+        
+        success_count = 0
+        error_count = 0
+        
+        await update.message.reply_text("📤 Отправка сообщений...")
+        
+        for player in players:
+            try:
+                await context.bot.send_message(
+                    chat_id=player.id,
+                    text=message,
+                    parse_mode=ParseMode.HTML
+                )
+                success_count += 1
+            except Exception as e:
+                error_count += 1
+                logger.error(f"Failed to send message to user {player.id}: {str(e)}")
+        
+
+        summary = f"""Рассылка завершена:
+✅ Успешно отправлено: <code>{success_count}</code>
+❌ Ошибок отправки: <code>{error_count}</code>
+📝 Текст сообщения:
+<code>{message}</code>"""
+        
+        await update.message.reply_text(summary, parse_mode=ParseMode.HTML)
+        
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
+            parse_mode=ParseMode.HTML
+        )
+        logger.error(f"Broadcast error: {str(e)}")
+    finally:
+        db.close()
+    
+
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()  # отвечаем на callback
+        
     screen_id = query.data
     handler, match = registry.resolve_handler(screen_id)
 
@@ -128,8 +298,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         markup, text = handler(query)
 
-    await query.edit_message_caption(caption=text, \
-                                     reply_markup=markup, parse_mode=ParseMode.HTML)
+    await query.edit_message_caption(
+        caption=text, 
+        reply_markup=markup, 
+        parse_mode=ParseMode.HTML)
 
 
 # Обработчик для стандартных кнопок меню.
@@ -166,15 +338,18 @@ def main():
 
     token = os.getenv('BOT_TOKEN')
 
-    # Создаем приложение
     application = Application.builder().token(token).build()
 
-    # Регистрируем обработчики команд и callback'ов
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("admin", admin))
     application.add_handler(CommandHandler("utm", utm))
+    application.add_handler(CommandHandler("get_utm", get_utm))
+    application.add_handler(CommandHandler("get_users", get_users))
+    # application.add_handler(broadcast_handler)
+    application.add_handler(CommandHandler("broadcast", broadcast))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, \
                                            handle_standard_buttons))
+    # application.add_handler(CallbackQueryHandler(broadcast_button))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
 

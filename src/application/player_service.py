@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy import func
+from sqlalchemy import select
 import datetime
 
 from src.infrastructure.models import (
@@ -95,3 +97,26 @@ class PlayerService:
         base = float(base)
         gain = float(gain) if gain else 0
         return base + gain * (level - 1)
+    
+    def get_new_users_count(self, interval: datetime.datetime):
+        current_time = datetime.datetime.now()
+        print(type(interval), type(current_time))
+        start_time = current_time - interval
+        
+        result = self.db.execute(
+            select(Player)
+            .where(Player.created_at >= start_time)
+            .where(Player.created_at <= current_time)
+        ).all()
+
+        return len(result)
+
+    def get_all(self):
+        players = self.db.execute(
+            select(Player)
+            ).scalars().all()
+        
+        return players
+    
+    # def get_ship(self, player)
+
