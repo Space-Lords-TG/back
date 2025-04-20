@@ -37,8 +37,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         service.player_init(player_id, username)
 
         utmService = UtmService(db)
-        utm_tag = context.args[0]
-        utmService.increment_utm_usage(utm_tag)
+        if len(context.args):
+            utm_tag = context.args[0]
+            utmService.increment_utm_usage(utm_tag)
     except Exception as e:
         await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
                                         parse_mode=ParseMode.HTML)
