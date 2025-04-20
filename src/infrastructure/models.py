@@ -128,3 +128,12 @@ class ArenaFight(Base):
     player1_id = Column(BigInteger, nullable=False)
     player2_id = Column(BigInteger, nullable=False)
     result = Column(String(10), nullable=False)
+
+class UTMtag(Base):
+    __tablename__ = 'utm_tags'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    tag = Column(String(64), nullable=False)  # utm_tag
+    created_at = Column(DateTime, default=datetime.utcnow)
+    used = Column(Integer, default=0)
+

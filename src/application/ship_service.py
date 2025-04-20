@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from typing import List, Tuple
 from datetime import datetime, timedelta, timezone
-import pytz
+# import pytz
 from src.application.config_loader import config
 
 from src.infrastructure.models import (
@@ -415,7 +415,8 @@ class ShipService:
         ship_power = power_gun * power_hull
 
         # Минимум 1 единица
-        #cost_crystalls = max(1, round(power_gun * repair_cost_per_power * damage_ratio))
+        #cost_crystalls = max(1, round(power_gun * \
+        # repair_cost_per_power * damage_ratio))
         #cost_metals = max(1, round(power_hull * repair_cost_per_power * damage_ratio))
         cost_crystalls = max(config['repair']['min_cost'], round(power_gun * repair_cost_per_power * damage_ratio))
         cost_metals = max(config['repair']['min_cost'], round(power_hull * repair_cost_per_power * damage_ratio))

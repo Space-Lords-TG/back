@@ -2,6 +2,7 @@ import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
 import src.presentation.screens.ship as shipScreens
 import src.presentation.screens.arena as arenaScreens
+import src.presentation.screens.admin as adminScreens
 
 
 def getImage(screenId: str):
@@ -14,5 +15,7 @@ def getImage(screenId: str):
             return "https://i.imgur.com/VJLWNIn.png"
         case shipScreens.SHIP:
             return "https://i.imgur.com/1RCjddx.png"
+        case adminScreens.ADMIN:
+            return "https://i.imgur.com/6QVpF1p.png"
         case _:
             return "https://i.imgur.com/I8oPG0w.png"
