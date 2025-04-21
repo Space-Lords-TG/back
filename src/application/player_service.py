@@ -118,5 +118,16 @@ class PlayerService:
         
         return players
     
+    def get_username(self, player_id: int):
+        player = self.db.execute(
+            select(Player).
+            where(Player.id == player_id)
+        ).scalar_one_or_none()
+
+        if not player:
+            return None
+        
+        return player.username
+    
     # def get_ship(self, player)
 
