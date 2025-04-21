@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from sqlalchemy import select
 import datetime
 
 from src.infrastructure.models import (

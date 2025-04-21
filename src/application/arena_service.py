@@ -103,8 +103,9 @@ class ArenaService:
                 absorbed = min(defender['shields'], final_damage)
                 defender['shields'] -= absorbed
                 final_damage -= absorbed
-                log.append(f"{attacker_name} пробивает щиты {defender_name} на \
-                           {absorbed:.1f} урона. Прочность щитов: {defender['shields']:.1f}")
+                log.append(f"{attacker_name} пробивает щиты {defender_name}\
+                            на {absorbed:.1f} урона. Прочность щитов: \
+                                {defender['shields']:.1f}")
 
             # Затем оставшийся урон по здоровью
             if final_damage > 0:
@@ -112,7 +113,8 @@ class ArenaService:
                 if defender['health'] < 0: 
                     defender['health'] = 0
                 log.append(f"{attacker_name} наносит {defender_name} \
-                           {final_damage:.1f} урона по корпусу. Осталось HP: {defender['health']:.1f}")
+                           {final_damage:.1f} урона по корпусу. Осталось HP: \
+                            {defender['health']:.1f}")
 
         # Определяем, кто ходит первым по скорости
         turn = 0  # 0 - игрок 1, 1 - игрок 2

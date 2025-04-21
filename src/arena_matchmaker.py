@@ -2,7 +2,7 @@ from telegram import Bot
 import os
 from src.infrastructure.database import SessionLocal
 from src.application.arena_service import ArenaService
-import time
+# import time
 import asyncio
 
 bot = Bot(token = os.getenv('BOT_TOKEN'))
