@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
 from src.infrastructure.models import ArenaQueue, Ship, ArenaFight
 from src.application.ship_service import ShipService
 from src.application.player_service import PlayerService
 from telegram import Bot
 from telegram.constants import ParseMode
-import asyncio
+# import asyncio
 # from io import BytesIO
 import random
 from decimal import Decimal
@@ -103,14 +103,16 @@ class ArenaService:
                 absorbed = min(defender['shields'], final_damage)
                 defender['shields'] -= absorbed
                 final_damage -= absorbed
-                log.append(f"{attacker_name} пробивает щиты {defender_name} на {absorbed:.1f} урона. Прочность щитов: {defender['shields']:.1f}")
+                log.append(f"{attacker_name} пробивает щиты {defender_name} на \
+                           {absorbed:.1f} урона. Прочность щитов: {defender['shields']:.1f}")
 
             # Затем оставшийся урон по здоровью
             if final_damage > 0:
                 defender['health'] -= Decimal(final_damage)
                 if defender['health'] < 0: 
                     defender['health'] = 0
-                log.append(f"{attacker_name} наносит {defender_name} {final_damage:.1f} урона по корпусу. Осталось HP: {defender['health']:.1f}")
+                log.append(f"{attacker_name} наносит {defender_name} \
+                           {final_damage:.1f} урона по корпусу. Осталось HP: {defender['health']:.1f}")
 
         # Определяем, кто ходит первым по скорости
         turn = 0  # 0 - игрок 1, 1 - игрок 2
@@ -140,7 +142,7 @@ class ArenaService:
         # score1 = stats1["power_score"]
         # score2 = stats2["power_score"]
 
-        result, battleLog = self.simulate_battle(stats1, stats1, username1, username2)
+        result, battleLog = self.simulate_battle(stats1, stats2, username1, username2)
 
         if result == "win1":
             winner, loser = player1_id, player2_id
@@ -211,17 +213,17 @@ class ArenaService:
 
     def _build_fight_result_text(self, player_id: int, opponent_id: int, result_data: dict) -> str:
         winner = result_data.get("winner")
-        loser = result_data.get("loser")
+        # loser = result_data.get("loser")
         # draw = result_data.get("result") == "draw"
         lost_hp = result_data.get("loser_health_after")
         battleLog = result_data.get("battle_log")
 
         # if draw:
-        #     return f"<b>Результат боя:</b> Ничья!\nВы сразились с игроком <code>{opponent_id}</code> и бой завершился ничьей."
+        #     return f"<b>Результат боя:</b> Ничья!\nВы \
+        # сразились с игроком <code>{opponent_id}</code> и бой завершился ничьей."
 
         if player_id == winner:
-            return f"""<b>Результат боя:</b> Победа! 
-
+            return f"""<b>Результат боя:</b> Победа!
 Урон по противнику: <b>{lost_hp:.0f}</b> HP.
 Лог боя:
 <pre>
@@ -229,7 +231,6 @@ class ArenaService:
 </pre>"""
         else:
             return f"""<b>Результат боя:</b> Поражение.
-
 Ваше здоровье после боя: <b>{lost_hp:.0f}</b> HP.
 Лог боя:
 <pre>

@@ -3,12 +3,10 @@ import logging
 import traceback
 import datetime
 
-from telegram import Update, ReplyKeyboardMarkup,  \
-    InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, \
-    CommandHandler, ContextTypes, MessageHandler, filters, \
-        ConversationHandler
+    CommandHandler, ContextTypes, MessageHandler, filters
 
 
 from src.application.config_loader import config
@@ -25,7 +23,6 @@ from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
 
-from threading import Thread
 from src.arena_matchmaker import run_arena_matchmaking
 import asyncio
 
@@ -135,7 +132,7 @@ async def get_utm(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         service = UtmService(db)
         used_count = service.get_utm_used_count(tag=tag)
-        if used_count == None:
+        if used_count is None:
                 await update.message.reply_text(f"Метка <code>{tag}</code> еще не создана", \
                                         parse_mode=ParseMode.HTML)
                 return
@@ -174,19 +171,19 @@ async def get_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
             case 'all':
                 # For 'all', we'll use a very large interval
                 delta = datetime.timedelta(days=36500)  # 100 years
-                message = "Общее количество пользователей"
+                # message = "Общее количество пользователей"
             case 'year':
                 delta = datetime.timedelta(days=365)
-                message = "Количество пользователей за год"
+                # message = "Количество пользователей за год"
             case 'month':
                 delta = datetime.timedelta(days=30)
-                message = "Количество пользователей за месяц"
+                # message = "Количество пользователей за месяц"
             case 'week':
                 delta = datetime.timedelta(weeks=1)
-                message = "Количество пользователей за неделю"
+                # message = "Количество пользователей за неделю"
             case 'day':
                 delta = datetime.timedelta(days=1)
-                message = "Количество пользователей за день"
+                # message = "Количество пользователей за день"
             case _:
                 raise ValueError("Неверный интервал. Используйте: all/year/month/week/day")
 
@@ -217,19 +214,19 @@ async def get_user_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not message:
         raise ValueError("Не указан игрок")
     
-    db = SessionLocal()
-    try:
-        service = PlayerService(db=db)
-        # players = service.
+    # db = SessionLocal()
+    # try:
+    #     service = PlayerService(db=db)
+    #     # players = service.
 
-    except Exception as e:
-        await update.message.reply_text(
-            f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
-            parse_mode=ParseMode.HTML
-        )
-        logger.error(f"Broadcast error: {str(e)}")
-    finally:
-        db.close()
+    # except Exception as e:
+    #     await update.message.reply_text(
+    #         f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
+    #         parse_mode=ParseMode.HTML
+    #     )
+    #     logger.error(f"Broadcast error: {str(e)}")
+    # finally:
+    #     db.close()
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     player_id = update.message.from_user.id
