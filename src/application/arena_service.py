@@ -128,7 +128,7 @@ class ArenaService:
                     log.append(f"{username2} нокаутирован!")
                     return "win1", "\n".join(log)
             else:
-                attack(ship2, ship1, username1, username2)
+                attack(ship2, ship1, username2, username1)
                 if ship1['health'] <= 0:
                     log.append(f"{username1} нокаутирован!")
                     return "win2", "\n".join(log)
