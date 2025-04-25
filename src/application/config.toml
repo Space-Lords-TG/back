@@ -48,3 +48,11 @@ admins_array = [
     5128641039,
     6593984699
 ]
+
+# ======================
+# Арена (награды)
+# ======================
+[arena_rewards]
+win_multiplier = 0.01
+loss_multiplier = 0.003
+spread_exponent = 1.5

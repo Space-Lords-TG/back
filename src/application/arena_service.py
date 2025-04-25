@@ -10,6 +10,7 @@ from telegram.constants import ParseMode
 # from io import BytesIO
 import random
 from decimal import Decimal
+from src.application.config_loader import config
 
 class ArenaService:
     def __init__(self, db: Session):
@@ -169,10 +170,47 @@ class ArenaService:
             ).scalar_one()
             max_health = self.ship_service.get_hull_stats(loser)["max_health_hull"]
             new_health = max(0.0, float(loser_ship.health) - 0.1 * float(max_health))
-            
+
             loser_ship.health = new_health
 
-        # Записываем бой в таблицу
+        win_multiplier = float(config["arena_rewards"]["win_multiplier"])
+        loss_multiplier = float(config["arena_rewards"]["loss_multiplier"])
+        spread_exponent = float(config["arena_rewards"]["spread_exponent"])
+
+        def calculate_reward(power_self, power_enemy, victory: bool) -> float:
+            K = win_multiplier if victory else loss_multiplier
+            L = spread_exponent
+            if power_enemy == 0:
+                return 0
+            modifier = (1 + (power_enemy - power_self) / power_enemy)
+            modifier = max(modifier, 0)
+            return power_self * K * (modifier ** L)
+
+        reward_winner = calculate_reward(
+            self.ship_service.get_ship_stats(winner)["power_score"],
+            self.ship_service.get_ship_stats(loser)["power_score"],
+            victory=True
+        )
+
+        reward_loser = calculate_reward(
+            self.ship_service.get_ship_stats(loser)["power_score"],
+            self.ship_service.get_ship_stats(winner)["power_score"],
+            victory=False
+        )
+
+        winner_metal = reward_winner / 2
+        winner_cryst = reward_winner / 2
+        loser_metal = reward_loser / 2
+        loser_cryst = reward_loser / 2
+
+        winner_resources = self.player_service.get_resources(winner)
+        winner_resources.metals += int(winner_metal)
+        winner_resources.crystalls += int(winner_cryst)
+
+        loser_resources = self.player_service.get_resources(loser)
+        loser_resources.metals += int(loser_metal)
+        loser_resources.crystalls += int(loser_cryst)
+
         self.db.add(ArenaFight(
             player1_id=player1_id,
             player2_id=player2_id,
@@ -190,7 +228,11 @@ class ArenaService:
             "winner": winner,
             "loser": loser,
             "loser_health_after": new_health,
-            "battle_log": battleLog
+            "battle_log": battleLog,
+            "winner_reward_metal": int(winner_metal),
+            "winner_reward_crystall": int(winner_cryst),
+            "loser_reward_metal": int(loser_metal),
+            "loser_reward_crystall": int(loser_cryst),
         }
 
     async def notify_players_about_fight(self, player1_id: int, player2_id: int, result_data: dict, bot: Bot):
@@ -223,18 +265,38 @@ class ArenaService:
         # if draw:
         #     return f"<b>Результат боя:</b> Ничья!\nВы \
         # сразились с игроком <code>{opponent_id}</code> и бой завершился ничьей."
+        winner_metal = result_data.get("winner_reward_metal")
+        winner_cryst = result_data.get("winner_reward_crystall")
+        loser_metal = result_data.get("loser_reward_metal")
+        loser_cryst = result_data.get("loser_reward_crystall")
 
         if player_id == winner:
             return f"""<b>Результат боя:</b> Победа!
-Урон по противнику: <b>{lost_hp:.0f}</b> HP.
-Лог боя:
-<pre>
-{battleLog}
-</pre>"""
+
+    Вы победили игрока <code>{opponent_id}</code>!
+
+    <b>Награда:</b>
+    • Металлы: +{winner_metal}
+    • Кристаллы: +{winner_cryst}
+
+    <b>Урон по противнику:</b> {lost_hp:.0f} HP.
+
+    <b>Лог боя:</b>
+    <pre>
+    {battleLog}
+    </pre>"""
         else:
-            return f"""<b>Результат боя:</b> Поражение.
-Ваше здоровье после боя: <b>{lost_hp:.0f}</b> HP.
-Лог боя:
-<pre>
-{battleLog}
-</pre>"""
+            return f"""<b>Результат боя:</b> Поражение...
+
+    Вы проиграли игроку <code>{opponent_id}</code>.
+
+    <b>Награда:</b>
+    • Металлы: +{loser_metal}
+    • Кристаллы: +{loser_cryst}
+
+    <b>Ваше здоровье после боя:</b> {lost_hp:.0f} HP.
+
+    <b>Лог боя:</b>
+    <pre>
+    {battleLog}
+    </pre>"""
