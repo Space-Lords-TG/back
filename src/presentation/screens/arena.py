@@ -57,7 +57,7 @@ def get_queue(query: CallbackQuery):
         data = service.get_active_ship(player_id)
         ship = data["ship"]
 
-        # Проверка корабль на ремонте
+        # 🛠 Проверка корабль на ремонте
         if ship.repair_ends_at and ship.repair_ends_at > datetime.now(timezone.utc):
             moscow_time = ship.repair_ends_at.astimezone(pytz_timezone("Europe/Moscow"))
             time_str = moscow_time.strftime('%H:%M:%S')
@@ -70,7 +70,7 @@ def get_queue(query: CallbackQuery):
             keyboard = [[InlineKeyboardButton("Назад", callback_data=ARENA)]]
             return InlineKeyboardMarkup(keyboard), text
 
-        # Проверка уже в очереди
+        # 🧍‍♂️ Проверка уже в очереди
         if arena_service.is_in_queue(player_id):
             stats = service.get_ship_stats(player_id)
 
@@ -95,7 +95,7 @@ def get_queue(query: CallbackQuery):
 """
             return InlineKeyboardMarkup(keyboard), text
 
-        # Добавляем в очередь
+        # ✅ Добавляем в очередь
         arena_service.join_queue(player_id)
         stats = service.get_ship_stats(player_id)
 

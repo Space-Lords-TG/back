@@ -128,4 +128,9 @@ class PlayerService:
         return player.username
     
     # def get_ship(self, player)
+    def get_resources(self, player_id: int):
+        return self.db.execute(
+            select(PlayerResources).
+            where(PlayerResources.player_id == player_id)
+        ).scalar_one()
 

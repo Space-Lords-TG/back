@@ -282,9 +282,7 @@ class ArenaService:
     <b>Урон по противнику:</b> {lost_hp:.0f} HP.
 
     <b>Лог боя:</b>
-    <pre>
-    {battleLog}
-    </pre>"""
+    <pre>{battleLog}</pre>"""
         else:
             return f"""<b>Результат боя:</b> Поражение...
 
@@ -297,6 +295,4 @@ class ArenaService:
     <b>Ваше здоровье после боя:</b> {lost_hp:.0f} HP.
 
     <b>Лог боя:</b>
-    <pre>
-    {battleLog}
-    </pre>"""
+    <pre>{battleLog}</pre>"""
