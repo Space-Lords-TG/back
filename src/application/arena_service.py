@@ -66,8 +66,7 @@ class ArenaService:
                     matched_pairs.append((p1, p2))
                     used_ids.update([p1, p2])
                     break
-        print(f"[DEBUG] Matching... Queue size: {len(queue)}")
-        return matched_pairs
+        return matched_pairs or []
     
     def simulate_battle(self, stats1, stats2, username1, username2):
         log = []
