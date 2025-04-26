@@ -12,8 +12,8 @@ on:
       - ci_testing
 
 env:
-  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE }}
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY_DEV }}
+  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_DEV }}
 
 jobs:
   lint:
@@ -62,7 +62,7 @@ jobs:
           file: Dockerfile
           platforms: linux/arm64,linux/amd64
           build-args: |
-            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            BOT_TOKEN=${{ secrets.BOT_TOKEN_DEV }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
