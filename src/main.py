@@ -23,7 +23,6 @@ from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
 
-from src.arena_matchmaker import run_arena_matchmaking
 import asyncio
 
 # Настройка логирования
@@ -171,26 +170,26 @@ async def get_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
             case 'all':
                 # For 'all', we'll use a very large interval
                 delta = datetime.timedelta(days=36500)  # 100 years
-                # message = "Общее количество пользователей"
+                message = "Общее количество пользователей"
             case 'year':
                 delta = datetime.timedelta(days=365)
-                # message = "Количество пользователей за год"
+                message = "Количество пользователей за год"
             case 'month':
                 delta = datetime.timedelta(days=30)
-                # message = "Количество пользователей за месяц"
+                message = "Количество пользователей за месяц"
             case 'week':
                 delta = datetime.timedelta(weeks=1)
-                # message = "Количество пользователей за неделю"
+                message = "Количество пользователей за неделю"
             case 'day':
                 delta = datetime.timedelta(days=1)
-                # message = "Количество пользователей за день"
+                message = "Количество пользователей за день"
             case _:
                 raise ValueError("Неверный интервал. Используйте: all/year/month/week/day")
 
         service = PlayerService(db=db)
         used_count = service.get_new_users_count(interval=delta)
 
-        await update.message.reply_text(f"Количество регистраций:\n<code>{used_count}</code>", \
+        await update.message.reply_text(f"{message}:\n<code>{used_count}</code>", \
                                         parse_mode=ParseMode.HTML)
 
     except Exception as e:
@@ -214,19 +213,20 @@ async def get_user_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not message:
         raise ValueError("Не указан игрок")
     
-    # db = SessionLocal()
-    # try:
-    #     service = PlayerService(db=db)
-    #     # players = service.
+    db = SessionLocal()
+    try:
+        # service = PlayerService(db=db)
+        # players = service.
+        pass
 
-    # except Exception as e:
-    #     await update.message.reply_text(
-    #         f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
-    #         parse_mode=ParseMode.HTML
-    #     )
-    #     logger.error(f"Broadcast error: {str(e)}")
-    # finally:
-    #     db.close()
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
+            parse_mode=ParseMode.HTML
+        )
+        logger.error(f"Broadcast error: {str(e)}")
+    finally:
+        db.close()
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     player_id = update.message.from_user.id
@@ -360,5 +360,5 @@ def main():
 
 if __name__ == '__main__':
     # Запуск фонового потока поиска боёв
-    asyncio.get_event_loop().create_task(run_arena_matchmaking())
-    main()
+    # asyncio.get_event_loop().create_task(run_arena_matchmaking())
+    asyncio.run(main())
