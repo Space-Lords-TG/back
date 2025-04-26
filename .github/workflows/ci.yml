@@ -1,4 +1,4 @@
-name: Push and Deploy 
+name: CI CD DEV
 
 permissions:
   contents: read
@@ -65,6 +65,11 @@ jobs:
           platforms: linux/arm64,linux/amd64
           build-args: |
             BOT_TOKEN=${{ secrets.BOT_TOKEN_DEV }}
+            DB_USERNAME=${{ secrets.DB_USERNAME_DEV }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD_DEV }}
+            DB_IP=${{ secrets.DB_IP_DEV }}
+            DB_PORT=${{ secrets.DB_PORT_DEV }}
+            DB_NAME=${{ secrets.DB_NAME_DEV }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
