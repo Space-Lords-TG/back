@@ -303,6 +303,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         arenaService = ArenaService(db)
         arenaService.leave_queue(player_id)
     except Exception as e:
+        print(e)
         return
     finally:
         db.close()
@@ -340,6 +341,7 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
         arenaService = ArenaService(db)
         arenaService.leave_queue(player_id)
     except Exception as e:
+        print(e)
         return
     finally:
         db.close()
