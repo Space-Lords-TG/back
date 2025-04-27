@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 # from datetime import datetime, timezone
-from src.infrastructure.models import ArenaQueue, Ship, ArenaFight
+from src.infrastructure.models import ArenaQueue, ArenaFight
 from src.application.ship_service import ShipService
 from src.application.player_service import PlayerService
 from telegram import Bot
@@ -123,12 +123,12 @@ class ArenaService:
                 attack(ship1, ship2, username1, username2)
                 if ship2['health'] <= 0:
                     log.append(f"{username2} нокаутирован!")
-                    return "win1", "\n".join(log)
+                    return "win1", "\n".join(log), ship1['health'], 0
             else:
                 attack(ship2, ship1, username2, username1)
                 if ship1['health'] <= 0:
                     log.append(f"{username1} нокаутирован!")
-                    return "win2", "\n".join(log)
+                    return "win2", "\n".join(log), ship2['health'], 0
             turn = 1 - turn  # Меняем ход
 
     def resolve_battle(self, player1_id: int, player2_id: int) -> dict:
@@ -141,7 +141,7 @@ class ArenaService:
         # score1 = stats1["power_score"]
         # score2 = stats2["power_score"]
 
-        result, battleLog = self.simulate_battle(stats1, stats2, username1, username2)
+        result, battleLog, hp_winner, hp_loser = self.simulate_battle(stats1, stats2, username1, username2)
 
         if result == "win1":
             winner, loser = player1_id, player2_id
@@ -159,15 +159,15 @@ class ArenaService:
         #     result = "win2"
         #     winner, loser = player2_id, player1_id
 
-        new_health = None
-        if loser:
-            loser_ship = self.db.execute(
-                select(Ship).where(Ship.player_id == loser)
-            ).scalar_one()
-            max_health = self.ship_service.get_hull_stats(loser)["max_health_hull"]
-            new_health = max(0.0, float(loser_ship.health) - 0.1 * float(max_health))
+        # new_health = None
+        # if loser:
+        #     loser_ship = self.db.execute(
+        #         select(Ship).where(Ship.player_id == loser)
+        #     ).scalar_one()
+        #     max_health = self.ship_service.get_hull_stats(loser)["max_health_hull"]
+        #     new_health = 0
 
-            loser_ship.health = new_health
+        #     loser_ship.health = new_health
 
         win_multiplier = float(config["arena_rewards"]["win_multiplier"])
         loss_multiplier = float(config["arena_rewards"]["loss_multiplier"])
@@ -223,7 +223,8 @@ class ArenaService:
             "result": result,
             "winner": winner,
             "loser": loser,
-            "loser_health_after": new_health,
+            "winer_health_after": hp_winner,
+            "loser_health_after": hp_loser,
             "battle_log": battleLog,
             "winner_reward_metal": int(winner_metal),
             "winner_reward_crystall": int(winner_cryst),
@@ -256,7 +257,8 @@ class ArenaService:
         winner = result_data.get("winner")
         # loser = result_data.get("loser")
         # draw = result_data.get("result") == "draw"
-        lost_hp = result_data.get("loser_health_after")
+        lost_hp_winer = result_data.get("winer_health_after")
+        lost_hp_loser = result_data.get("loser_health_after")
         battleLog = result_data.get("battle_log")
 
         # if draw:
@@ -276,7 +278,7 @@ class ArenaService:
     • Металлы: +{winner_metal}
     • Кристаллы: +{winner_cryst}
 
-    <b>Урон по противнику:</b> {lost_hp:.0f} HP.
+    <b>Ваше здоровье после боя:</b> {lost_hp_winer:.0f} HP.
 
     <b>Лог боя:</b>
     <pre>{battleLog}</pre>"""
@@ -289,7 +291,7 @@ class ArenaService:
     • Металлы: +{loser_metal}
     • Кристаллы: +{loser_cryst}
 
-    <b>Ваше здоровье после боя:</b> {lost_hp:.0f} HP.
+    <b>Ваше здоровье после боя:</b> {lost_hp_loser:.0f} HP.
 
     <b>Лог боя:</b>
     <pre>{battleLog}</pre>"""

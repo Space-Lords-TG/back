@@ -5,7 +5,7 @@
 [game]
 initial_resources = 10000
 max_level = 20
-match_power_threshold = 1.2
+match_power_threshold = 100
 
 # ======================
 # Ремонт корабля
