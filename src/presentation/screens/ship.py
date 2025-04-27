@@ -86,8 +86,9 @@ def get_ship_weapon(query: CallbackQuery):
         level = stats['level_gun']
 
         power_now = service.get_weapon_power(gun, level)
-        power_next = service.get_weapon_power(gun, level + 1)
-        cost = service.get_upgrade_cost(power_now, power_next)
+        # power_next = service.get_weapon_power(gun, level + 1)
+        # cost = service.get_upgrade_cost(power_now, power_next)
+        cost = service.get_upgrade_cost(power_now)
 
         keyboard = [
             [InlineKeyboardButton("Заменить", callback_data=SHIP_WEAPON_CHANGE),
@@ -138,7 +139,8 @@ def get_ship_weapon_upgrade(query: CallbackQuery):
 
         power_now = service.get_weapon_power(gun, level)
         power_next = service.get_weapon_power(gun, level + 1)
-        cost = service.get_upgrade_cost(power_now, power_next)
+        # cost = service.get_upgrade_cost(power_now, power_next)
+        cost = service.get_upgrade_cost(power_now)
 
         # Текущие значения
         damage = service.calc(gun.base_damage, gun.gain_damage, level)
@@ -327,10 +329,11 @@ def get_ship_body(query: CallbackQuery):
 
         # Текущая и следующая мощь
         power_now = service.get_hull_power(hull, level)
-        power_next = service.get_hull_power(hull, level + 1)
+        # power_next = service.get_hull_power(hull, level + 1)
 
         # Расчёт стоимости
-        cost = service.get_upgrade_cost(power_now, power_next)
+        # cost = service.get_upgrade_cost(power_now, power_next)
+        cost = service.get_upgrade_cost(power_now)
 
         keyboard = [
             [
@@ -478,7 +481,8 @@ def get_ship_hull_upgrade(query: CallbackQuery):
         next_maneuver = service.calc(hull.base_maneuver, hull.gain_maneuver, level + 1)
         power_next = service.get_hull_power(hull, level + 1)
 
-        cost = service.get_upgrade_cost(power_now, power_next)
+        # cost = service.get_upgrade_cost(power_now, power_next)
+        cost = service.get_upgrade_cost(power_now)
 
         keyboard = [
             [InlineKeyboardButton("Подтвердить", callback_data=POST_HULL_UPGRADE)],
