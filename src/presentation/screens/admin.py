@@ -4,7 +4,6 @@ from src.application.utm_service import UtmService
 from src.infrastructure.database import SessionLocal
 
 from src.application.config_loader import config
-import src.presentation.screens.mainMenu as mainMenu
 
 # Определяем идентификаторы экранов
 ADMIN = "ADMIN"
@@ -158,7 +157,7 @@ def set_resources(query: CallbackQuery | Message):
 
 
 @register(ADMIN_BROADCAST)
-def set_resources(query: CallbackQuery | Message):
+def broadcast(query: CallbackQuery | Message):
     try:
         checkAdmin(query)
 

@@ -183,7 +183,7 @@ class PlayerService:
             self.db.commit()
             return True
 
-        except Exception as e:
+        except Exception:
             self.db.rollback()
             return False
 
