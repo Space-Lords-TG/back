@@ -9,7 +9,7 @@ from telegram.ext import Application, CallbackQueryHandler, \
     CommandHandler, ContextTypes, MessageHandler, filters
 
 from src.application.config_loader import config
-from threading import Thread
+#from threading import Thread
 from src.arena_matchmaker import run_arena_matchmaking
 from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
@@ -24,7 +24,7 @@ from src.application.arena_service import ArenaService
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
 
-from src.healthcheck import run_fastapi
+#from src.healthcheck import run_fastapi
 
 import asyncio
 

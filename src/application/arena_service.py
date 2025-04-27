@@ -248,7 +248,8 @@ class ArenaService:
                     await bot.send_message(chat_id=player_id, text=text, parse_mode=ParseMode.HTML)
                     print(f"[NOTIFY] Уведомление отправлено игроку {player_id}")
                 except Exception as send_error:
-                    print(f"[ERROR] Не удалось отправить сообщение игроку {player_id}: {str(send_error)}")
+                    print(f"[ERROR] Не удалось отправить сообщение \
+                          игроку {player_id}: {str(send_error)}")
 
         except Exception as e:
             print(f"[ERROR] Ошибка в notify_players_about_fight: {str(e)}")

@@ -1,5 +1,5 @@
-from telegram import Bot
-import os
+#from telegram import Bot
+#import os
 from src.infrastructure.database import SessionLocal
 from src.application.arena_service import ArenaService
 # import time

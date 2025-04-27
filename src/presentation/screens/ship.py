@@ -609,7 +609,7 @@ def get_ship_repair(query: CallbackQuery):
 
 Корпус полностью отремонтирован.
 
-<i>Обновлено в {datetime.now().strftime('%H:%M:%S')}</i>
+<i>Обновлено в {moscow_time.strftime('%H:%M:%S')}</i>
 """
                 return InlineKeyboardMarkup(keyboard), text
 
