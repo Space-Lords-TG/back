@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 # from datetime import datetime, timezone
-from src.infrastructure.models import ArenaQueue, ArenaFight
+from src.infrastructure.models import ArenaQueue, Ship, ArenaFight
 from src.application.ship_service import ShipService
 from src.application.player_service import PlayerService
 from telegram import Bot
@@ -159,15 +159,15 @@ class ArenaService:
         #     result = "win2"
         #     winner, loser = player2_id, player1_id
 
-        # new_health = None
-        # if loser:
-        #     loser_ship = self.db.execute(
-        #         select(Ship).where(Ship.player_id == loser)
-        #     ).scalar_one()
-        #     max_health = self.ship_service.get_hull_stats(loser)["max_health_hull"]
-        #     new_health = 0
+        winner_ship = self.db.execute(
+            select(Ship).where(Ship.player_id == winner)
+        ).scalar_one()
+        winner_ship.health = hp_winner
 
-        #     loser_ship.health = new_health
+        loser_ship = self.db.execute(
+            select(Ship).where(Ship.player_id == loser)
+        ).scalar_one()
+        loser_ship.health = hp_loser
 
         win_multiplier = float(config["arena_rewards"]["win_multiplier"])
         loss_multiplier = float(config["arena_rewards"]["loss_multiplier"])
