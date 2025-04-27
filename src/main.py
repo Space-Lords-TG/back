@@ -10,7 +10,7 @@ from telegram.ext import Application, CallbackQueryHandler, \
 
 from src.application.config_loader import config
 from threading import Thread
-from src.arena_matchmaker import run_arena_matchmaking
+
 from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
@@ -20,8 +20,8 @@ import src.presentation.screens.admin as adminScreens
 import src.presentation.screens.registry as registry
 
 from src.infrastructure.database import SessionLocal
-from src.application.arena_service import ArenaService
 from src.application.player_service import PlayerService
+from src.application.ship_service import ShipService
 from src.application.utm_service import UtmService
 
 from src.healthcheck import run_fastapi
@@ -42,9 +42,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update.message.from_user.username
         service = PlayerService(db)
         service.player_init(player_id, username)
-
-        arenaService = ArenaService(db)
-        arenaService.leave_queue(player_id)
 
         utmService = UtmService(db)
         if len(context.args):
@@ -216,25 +213,157 @@ async def get_user_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     text = update.message.text
-    message = text[len("/get_user_info "):].strip()
+    username = text[len("/get_user_info "):].strip()
 
-    if not message:
+    if not username:
         raise ValueError("Не указан игрок")
     
     db = SessionLocal()
     try:
-        # service = PlayerService(db=db)
-        # players = service.
-        pass
+        user_id = PlayerService(db=db).get_id(username=username)
+        
+        player_ship = ShipService(db=db).get_ship_stats(player_id=user_id)
+        player_guns = ShipService(db=db).get_weapon_stats(player_id=user_id)
+        player_hulls = ShipService(db=db).get_hull_stats(player_id=user_id)
+        player_resources = PlayerService(db=db).get_resources(player_id=user_id)
+
+        message = f"""
+Характеристики корабля:
+Скорость: {player_ship['speed_gun']}
+Урон: {player_ship['damage_gun']}
+Шанс крита: {player_ship['crit_rate_gun']}%
+Крит. урон: {player_ship['crit_damage_gun']}x
+Защита: {player_ship['armor_hull']}
+Щиты: {player_ship['shields_hull']}
+Манёвренность: {player_ship['maneuver_hull']}
+Здоровье корабля: {player_ship['health']}/{player_ship['max_health_hull']}
+Установленные модули:
+Оружие — <b>{player_ship['name_gun']}</b>
+Корпус — <b>{player_ship['name_hull']}</b>
+
+Характеристики оружия:
+Название: <b>{player_guns['name_gun']}</b>
+Уровень: {player_guns['level_gun']}
+Урон: {player_guns['damage_gun']}
+Крит. частота: {player_guns['crit_rate_gun']}%
+Крит. урон: {player_guns['crit_damage_gun']}x
+Скорость: {player_guns['speed_gun']}
+
+Характеристика корпуса:
+Название: {player_hulls['name_hull']}
+Уровень: {player_hulls['level_hull']}
+Здоровье: {player_hulls['max_health_hull']:.0f}
+Защита: {player_hulls['armor_hull']:.0f}
+Щиты: {player_hulls['shields_hull']:.0f}
+Манёвренность: {player_hulls['maneuver_hull']:.2f}
+Мощь: {player_hulls['power_hull']:.2f}
+
+Ресурсы:
+Количество металлов: {player_resources.metals}
+Количество кристаллов: {player_resources.crystalls}
+Количество газа: {player_resources.gas}
+"""
+        await update.message.reply_text(f"{message}", \
+                                        parse_mode=ParseMode.HTML)
 
     except Exception as e:
-        await update.message.reply_text(
-            f"❌ Ошибка при рассылке:\n<code>{str(e)}</code>",
-            parse_mode=ParseMode.HTML
-        )
-        logger.error(f"Broadcast error: {str(e)}")
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        print(e)
+        return
+    
     finally:
         db.close()
+
+
+
+async def set_resources(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Обработчик команды /set_resources в формате:
+    /set_resources username resource_type amount
+    Пример: /set_resources john_doe metals 1000
+    """
+    player_id = update.message.from_user.id
+    
+    if (player_id not in config["admins"]["admins_array"]):
+        await update.message.reply_text("Неизвестная команда")
+        return
+    
+    try:
+        # Парсим аргументы
+        args = context.args
+        if len(args) != 3:
+            raise ValueError(
+                "Использование: /set_resources username тип_ресурса количество\n"
+                "Пример: /set_resources john_doe metals 1000\n"
+                "Доступные типы ресурсов: metals, crystalls, gas"
+            )
+
+        username = args[0]
+        resource_type = args[1].lower()
+        
+        # Проверяем тип ресурса
+        if resource_type not in ['metals', 'crystalls', 'gas']:
+            raise ValueError(f"Неизвестный тип ресурса: {resource_type}")
+        
+        # Парсим количество
+        try:
+            amount = int(args[2])
+            if amount < 0:
+                raise ValueError("Количество ресурса не может быть отрицательным")
+        except ValueError:
+            raise ValueError("Количество должно быть целым числом")
+
+        db = SessionLocal()
+        try:
+            service = PlayerService(db=db)
+            
+            # Получаем ID игрока по username
+            target_id = service.get_id(username)
+            if not target_id:
+                raise ValueError(f"Игрок с username @{username} не найден")
+
+            # Подготавливаем параметры для set_resources
+            resources = {
+                'metals': None,
+                'crystalls': None,
+                'gas': None
+            }
+            resources[resource_type] = amount
+
+            # Устанавливаем новое значение ресурса
+            if service.set_resources(target_id, 
+                                  metals=resources['metals'], 
+                                  crystalls=resources['crystalls'], 
+                                  gas=resources['gas']):
+                # Получаем обновленные ресурсы для отображения
+                new_resources = service.get_resources(target_id)
+
+                await update.message.reply_text(
+                    f"✅ Ресурсы игрока @{username} обновлены:\n"
+                    f"Металл: <code>{new_resources.metals}</code>\n"
+                    f"Кристаллы: <code>{new_resources.crystalls}</code>\n"
+                    f"Газ: <code>{new_resources.gas}</code>",
+                    parse_mode=ParseMode.HTML
+                )
+            else:
+                raise ValueError("Ошибка при установке ресурсов")
+
+        finally:
+            db.close()
+
+    except ValueError as e:
+        await update.message.reply_text(
+            f"❌ Ошибка: {str(e)}",
+            parse_mode=ParseMode.HTML
+        )
+    except Exception as e:
+        logger.error(f"Set resources error: {str(e)}")
+        await update.message.reply_text(
+            f"❌ Неизвестная ошибка:\n<code>{str(e)}</code>",
+            parse_mode=ParseMode.HTML
+        )
+
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     player_id = update.message.from_user.id
@@ -292,25 +421,11 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # commandName = update.message.text
     query = update.callback_query
     await query.answer()  # отвечаем на callback
-    
-    # imageLink = getImage(commandName)
+        
     screen_id = query.data
     handler, match = registry.resolve_handler(screen_id)
-
-    if screen_id != arenaScreens.ARENA_QUEUE:
-        db = SessionLocal()
-        try:
-            player_id = update.message.from_user.id
-
-            arenaService = ArenaService(db)
-            arenaService.leave_queue(player_id)
-        except Exception as e:
-            print(e)
-        finally:
-            db.close()
 
     if not handler:
         await query.edit_message_text("Неизвестный экран.")
@@ -334,17 +449,6 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
     commandName = update.message.text
     handler = registry.handlers.get(commandName)
 
-    db = SessionLocal()
-    try:
-        player_id = update.message.from_user.id
-
-        arenaService = ArenaService(db)
-        arenaService.leave_queue(player_id)
-    except Exception as e:
-        print(e)
-    finally:
-        db.close()
-
     if not handler:
         update.message.reply_text("Неизвестная команда")
         return
@@ -367,22 +471,24 @@ async def error_handler(update, context):
             parse_mode=ParseMode.HTML
         )
 
-async def start_background_tasks(app: Application):
-    asyncio.create_task(run_arena_matchmaking(app.bot))
 
 def main():
+
     token = os.getenv('BOT_TOKEN')
 
-    application = Application.builder().token(token).post_init(start_background_tasks).build()
+    application = Application.builder().token(token).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("admin", admin))
     application.add_handler(CommandHandler("utm", utm))
     application.add_handler(CommandHandler("get_utm", get_utm))
     application.add_handler(CommandHandler("get_users", get_users))
+    application.add_handler(CommandHandler("get_user_info", get_user_info))
+    application.add_handler(CommandHandler("set_resources", set_resources))
     # application.add_handler(broadcast_handler)
     application.add_handler(CommandHandler("broadcast", broadcast))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_standard_buttons))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, \
+                                           handle_standard_buttons))
     # application.add_handler(CallbackQueryHandler(broadcast_button))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
@@ -393,5 +499,8 @@ def main():
     # Запускаем бота
     application.run_polling()
 
+
 if __name__ == '__main__':
-    main()
+    # Запуск фонового потока поиска боёв
+    # asyncio.get_event_loop().create_task(run_arena_matchmaking())
+    asyncio.run(main())

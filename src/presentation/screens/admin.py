@@ -10,6 +10,10 @@ import src.presentation.screens.mainMenu as mainMenu
 ADMIN = "ADMIN"
 ADMIN_UTM_ALL = "ADMIN_UTM_ALL"
 ADMIN_CREATE_UTM = "ADMIN_CREATE_UTM"
+ADMIN_REGISTRATION_INFO = "ADMIN_REGISTRSTION_INFO" 
+ADMIN_PLAYER_TABLES = "ADMIN_PLAYER_TABLES"
+ADMIN_SET_RESOURCES = "ADMIN_SET_RESOURCES"
+ADMIN_BROADCAST = "ADMIN_BROADCAST"
 
 def checkAdmin(query: CallbackQuery | Message):
     # Проверка вхождение пользователя в состав админов
@@ -27,10 +31,10 @@ def get_admin(query: CallbackQuery | Message):
         # Основной интерфейс админки
         keyboard = [[InlineKeyboardButton("Просмотреть UTM метки", callback_data=ADMIN_UTM_ALL), 
                      InlineKeyboardButton("Создать UTM метку", callback_data=ADMIN_CREATE_UTM, switch_inline_query_current_chat="/utm ")],
-                    [InlineKeyboardButton("Данные о регистрации", callback_data=mainMenu.DEFAULT), 
-                     InlineKeyboardButton("Таблицы игрока", callback_data=mainMenu.DEFAULT)],
-                    [InlineKeyboardButton("Редактирование ресурсов", callback_data=mainMenu.DEFAULT), 
-                     InlineKeyboardButton("Оповещение игроков", callback_data=mainMenu.DEFAULT)]]
+                    [InlineKeyboardButton("Данные о регистрации", callback_data=ADMIN_REGISTRATION_INFO), 
+                     InlineKeyboardButton("Таблицы игрока", callback_data=ADMIN_PLAYER_TABLES)],
+                    [InlineKeyboardButton("Редактирование ресурсов", callback_data=ADMIN_SET_RESOURCES), 
+                     InlineKeyboardButton("Оповещение игроков", callback_data=ADMIN_BROADCAST)]]
         return InlineKeyboardMarkup(keyboard), \
 """Админка
 
@@ -90,3 +94,86 @@ def get_create_all(query: CallbackQuery | Message):
         return None, f"Ошибка: {str(e)}"
     finally:
         pass
+
+
+# Функция, возвращающая статистику по UTM меткам
+@register(ADMIN_REGISTRATION_INFO)
+def registration_info(query: CallbackQuery | Message):
+    try:
+        checkAdmin(query)
+
+        keyboard = [[InlineKeyboardButton("Назад", callback_data=ADMIN)]]
+        return InlineKeyboardMarkup(keyboard), \
+"""Админка
+
+Введите команду для просмотра зарегистрированных пользователей:
+<code>/get_users day/week/month/year/all</code>
+"""
+
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        pass
+
+
+@register(ADMIN_PLAYER_TABLES)
+def player_tables(query: CallbackQuery | Message):
+    try:
+        checkAdmin(query)
+
+        keyboard = [[InlineKeyboardButton("Назад", callback_data=ADMIN)]]
+        return InlineKeyboardMarkup(keyboard), \
+"""Админка
+
+Введите команду для просмотра таблиц игрока:
+<code>/get_user_info ИМЯ_ПОЛЬЗОВАТЕЛЯ</code>
+"""
+
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        pass
+
+
+@register(ADMIN_SET_RESOURCES)
+def set_resources(query: CallbackQuery | Message):
+    try:
+        checkAdmin(query)
+
+        keyboard = [[InlineKeyboardButton("Назад", callback_data=ADMIN)]]
+        return InlineKeyboardMarkup(keyboard), \
+"""Админка
+
+Введите команду для установки ресурсов игрока:
+<code>/set_resources ИМЯ_ПОЛЬЗОВАТЕЛЯ ТИП_РЕСУРСА КОЛИЧЕСТВО</code>
+
+Пример: /set_resources john_doe metals 1000
+Доступные типы ресурсов: metals, crystalls, gas
+"""
+
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        pass
+
+
+@register(ADMIN_BROADCAST)
+def set_resources(query: CallbackQuery | Message):
+    try:
+        checkAdmin(query)
+
+        keyboard = [[InlineKeyboardButton("Назад", callback_data=ADMIN)]]
+        return InlineKeyboardMarkup(keyboard), \
+"""Админка
+
+Введите команду для оповещения игроков:
+<code>/broadcast СООБЩЕНИЕ</code>
+
+"""
+
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        pass
+
+

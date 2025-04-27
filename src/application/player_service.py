@@ -109,6 +109,14 @@ class PlayerService:
 
         return len(result)
 
+    def get_id(self, username):
+        player = self.db.execute(
+            select(Player)
+            .where(Player.username == username)
+        ).scalar_one_or_none()
+        
+        return player.id if player else None
+
     def get_all(self):
         players = self.db.execute(
             select(Player)
@@ -134,5 +142,51 @@ class PlayerService:
             select(PlayerResources).
             where(PlayerResources.player_id == player_id)
         ).scalar_one()
+        
+    def set_resources(self, player_id: int, metals: int | None = None, crystalls: int | None = None, gas: int | None = None) -> bool:
+        """
+        Устанавливает абсолютные значения ресурсов игрока.
+        Если значение не указано (None), то оно не изменяется.
+
+        Args:
+            player_id (int): ID игрока
+            metals (int | None): Новое значение металла
+            crystalls (int | None): Новое значение кристаллов
+            gas (int | None): Новое значение газа
+
+        Returns:
+            bool: True если операция успешна, False если произошла ошибка
+        """
+        try:
+            # Получаем текущие ресурсы игрока
+            resources = self.db.execute(
+                select(PlayerResources)
+                .where(PlayerResources.player_id == player_id)
+            ).scalar_one()
+
+            # Обновляем только указанные ресурсы
+            if metals is not None:
+                if metals < 0:
+                    return False
+                resources.metals = metals
+
+            if crystalls is not None:
+                if crystalls < 0:
+                    return False
+                resources.crystalls = crystalls
+
+            if gas is not None:
+                if gas < 0:
+                    return False
+                resources.gas = gas
+
+            self.db.commit()
+            return True
+
+        except Exception as e:
+            self.db.rollback()
+            return False
+
+
 
 
