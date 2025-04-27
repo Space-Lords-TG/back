@@ -26,7 +26,7 @@ from src.application.utm_service import UtmService
 
 from src.healthcheck import run_fastapi
 
-from arena_matchmaker import run_arena_matchmaking
+from src.arena_matchmaker import run_arena_matchmaking
 
 import asyncio
 
