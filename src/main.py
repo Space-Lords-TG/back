@@ -20,6 +20,7 @@ import src.presentation.screens.admin as adminScreens
 import src.presentation.screens.registry as registry
 
 from src.infrastructure.database import SessionLocal
+from src.application.arena_service import ArenaService
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
 
@@ -41,6 +42,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update.message.from_user.username
         service = PlayerService(db)
         service.player_init(player_id, username)
+
+        arenaService = ArenaService(db)
+        arenaService.leave_queue(player_id)
 
         utmService = UtmService(db)
         if len(context.args):
@@ -288,9 +292,24 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # commandName = update.message.text
     query = update.callback_query
     await query.answer()  # отвечаем на callback
-        
+
+    db = SessionLocal()
+    try:
+        player_id = update.message.from_user.id
+
+        arenaService = ArenaService(db)
+        arenaService.leave_queue(player_id)
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        return
+    finally:
+        db.close()
+    
+    # imageLink = getImage(commandName)
     screen_id = query.data
     handler, match = registry.resolve_handler(screen_id)
 
@@ -315,6 +334,19 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     commandName = update.message.text
     handler = registry.handlers.get(commandName)
+
+    db = SessionLocal()
+    try:
+        player_id = update.message.from_user.id
+
+        arenaService = ArenaService(db)
+        arenaService.leave_queue(player_id)
+    except Exception as e:
+        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
+                                        parse_mode=ParseMode.HTML)
+        return
+    finally:
+        db.close()
 
     if not handler:
         update.message.reply_text("Неизвестная команда")

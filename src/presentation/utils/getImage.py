@@ -9,6 +9,14 @@ def getImage(screenId: str):
     match screenId:
         case mapScreens.MAP:
             return "https://i.imgur.com/yud0H9N.png"
+        case arenaScreens.ARENA_QUEUE:
+            return "https://i.imgur.com/2wI46ca.png"
+        case shipScreens.SHIP_BODY_REPAIR:
+            return "https://i.imgur.com/UqtdzZI.png"
+        case shipScreens.SHIP_WEAPON_UPGRADE:
+            return "https://i.imgur.com/LskyLC3.png"
+        case shipScreens.SHIP_HULL_UPGRADE:
+            return "https://i.imgur.com/LskyLC3.png"
         case arenaScreens.ARENA:
             return "https://i.imgur.com/3Tnlupf.png"
         case mainMenu.DEFAULT:
