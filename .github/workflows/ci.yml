@@ -14,7 +14,6 @@ env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY_PROD }}
   IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_PROD }}
 
-
 jobs:
   lint:
     runs-on: ubuntu-latest
