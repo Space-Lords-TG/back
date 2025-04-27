@@ -21,4 +21,6 @@ ENV DB_IP=$DB_IP
 ENV DB_PORT=$DB_PORT
 ENV DB_NAME=$DB_NAME
 
+EXPOSE 8001
+
 CMD ["python3", "-m", "src.main"]
