@@ -57,12 +57,9 @@ class ArenaService:
                 power2 = self.ship_service.get_ship_stats(p2)["power_score"]
 
                 weak, strong = sorted([power1, power2])
+                power_threshold = config["game"]["match_power_threshold"]
 
-                #if strong <= weak * 1.2:
-                #    matched_pairs.append((p1, p2))
-                #    used_ids.update([p1, p2])
-                #    break
-                if strong <= weak * 12:
+                if strong <= weak * power_threshold:
                     matched_pairs.append((p1, p2))
                     used_ids.update([p1, p2])
                     break

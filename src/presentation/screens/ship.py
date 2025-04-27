@@ -111,7 +111,7 @@ f"""<b>Оружие</b>
 Мощь: {power_now:.2f}
 
 Стоимость улучшения:
-{cost} кристаллов
+{cost:,} кристаллов
 """
         return InlineKeyboardMarkup(keyboard), text
 
@@ -355,7 +355,7 @@ def get_ship_body(query: CallbackQuery):
 Мощь: {stats['power_hull']:.2f}
 
 Стоимость улучшения:
-{cost} металлов
+{cost:,} металлов
 """
         return InlineKeyboardMarkup(keyboard), text
 
@@ -498,7 +498,7 @@ def get_ship_hull_upgrade(query: CallbackQuery):
 Мощь: {power_now:.2f} ➜ {power_next:.2f}
 
 Стоимость улучшения:
-{cost} металлов
+{cost:,} металлов
 """
         return InlineKeyboardMarkup(keyboard), text
 
