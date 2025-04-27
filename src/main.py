@@ -295,22 +295,22 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # commandName = update.message.text
     query = update.callback_query
     await query.answer()  # отвечаем на callback
-
-    db = SessionLocal()
-    try:
-        player_id = update.message.from_user.id
-
-        arenaService = ArenaService(db)
-        arenaService.leave_queue(player_id)
-    except Exception as e:
-        print(e)
-        return
-    finally:
-        db.close()
     
     # imageLink = getImage(commandName)
     screen_id = query.data
     handler, match = registry.resolve_handler(screen_id)
+
+    if screen_id != arenaScreens.ARENA_QUEUE:
+        db = SessionLocal()
+        try:
+            player_id = update.message.from_user.id
+
+            arenaService = ArenaService(db)
+            arenaService.leave_queue(player_id)
+        except Exception as e:
+            print(e)
+        finally:
+            db.close()
 
     if not handler:
         await query.edit_message_text("Неизвестный экран.")
@@ -342,7 +342,6 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
         arenaService.leave_queue(player_id)
     except Exception as e:
         print(e)
-        return
     finally:
         db.close()
 
