@@ -6,6 +6,7 @@ from src.application.arena_service import ArenaService
 import asyncio
 
 async def run_arena_matchmaking(bot, interval: int = 5):
+    print("ARENA MATCHMAKING START")
     while True:
         db = SessionLocal()
         try:

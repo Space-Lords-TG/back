@@ -132,6 +132,7 @@ class ArenaService:
             turn = 1 - turn  # Меняем ход
 
     def resolve_battle(self, player1_id: int, player2_id: int) -> dict:
+        print("BATTLE STARTED")
         stats1 = self.ship_service.get_ship_stats(player1_id)
         stats2 = self.ship_service.get_ship_stats(player2_id)
 
@@ -159,6 +160,7 @@ class ArenaService:
         #     result = "win2"
         #     winner, loser = player2_id, player1_id
 
+        print("SELECTING SHIPS")
         winner_ship = self.db.execute(
             select(Ship).where(Ship.player_id == winner)
         ).scalar_one()
