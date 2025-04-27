@@ -601,7 +601,7 @@ def get_ship_repair(query: CallbackQuery):
             damage_percent = (max_health - current_health) / max_health
 
             if damage_percent <= 0:
-                keyboard = [[InlineKeyboardButton("Назад", callback_data=SHIP_BODY)]]
+                keyboard = [[InlineKeyboardButton("Назад", callback_data=SHIP)]]
                 text = f"""<b>Ремонт корпуса:</b>
 
 Текущее здоровье корпуса:
@@ -623,7 +623,7 @@ def get_ship_repair(query: CallbackQuery):
 
             keyboard = [
                 [InlineKeyboardButton("Ремонт", callback_data=POST_SHIP_BODY_REPAIR)],
-                [InlineKeyboardButton("Назад", callback_data=SHIP_BODY)]
+                [InlineKeyboardButton("Назад", callback_data=SHIP)]
             ]
 
             text = f"""<b>Ремонт корпуса:</b>
