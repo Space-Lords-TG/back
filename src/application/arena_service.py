@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 # from datetime import datetime, timezone
-from src.infrastructure.models import ArenaQueue, Ship, ArenaFight
+from src.infrastructure.models import ArenaQueue, ArenaFight
 from src.application.ship_service import ShipService
 from src.application.player_service import PlayerService
 from telegram import Bot
@@ -165,7 +165,6 @@ class ArenaService:
         #         select(Ship).where(Ship.player_id == loser)
         #     ).scalar_one()
         #     max_health = self.ship_service.get_hull_stats(loser)["max_health_hull"]
-        #     # new_health = max(0.0, float(loser_ship.health) - 0.1 * float(max_health))
         #     new_health = 0
 
         #     loser_ship.health = new_health
