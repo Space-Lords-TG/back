@@ -608,8 +608,6 @@ def get_ship_repair(query: CallbackQuery):
 {current_health:.0f} / {max_health:.0f} (100.0%)
 
 Корпус полностью отремонтирован.
-
-<i>Обновлено в {moscow_time.strftime('%H:%M:%S')}</i>
 """
                 return InlineKeyboardMarkup(keyboard), text
 
