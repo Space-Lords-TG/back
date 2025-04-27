@@ -1,0 +1,26 @@
+FROM python:3.13.2-bookworm
+
+RUN set -ex
+USER root
+
+COPY . /app
+WORKDIR /app
+RUN pip install -r src/requirements.txt
+
+ARG BOT_TOKEN
+ARG DB_USERNAME
+ARG DB_PASSWORD
+ARG DB_IP
+ARG DB_PORT
+ARG DB_NAME
+
+ENV BOT_TOKEN=$BOT_TOKEN
+ENV DB_USERNAME=$DB_USERNAME
+ENV DB_PASSWORD=$DB_PASSWORD
+ENV DB_IP=$DB_IP
+ENV DB_PORT=$DB_PORT
+ENV DB_NAME=$DB_NAME
+
+EXPOSE 8001
+
+CMD ["python3", "-m", "src.main"]

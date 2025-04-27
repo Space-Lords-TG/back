@@ -74,3 +74,4 @@ __pycache__
 venv
 mocks
 results
+.vscode
