@@ -69,6 +69,15 @@ def get_queue(query: CallbackQuery):
 """
             keyboard = [[InlineKeyboardButton("Назад", callback_data=ARENA)]]
             return InlineKeyboardMarkup(keyboard), text
+        
+        # 🛠 Проверка HP > 0
+        if ship.health <= 0:
+            text = f"""<b>Здоровье вашего корабля равно 0.</b>
+
+Вы не можете участвовать в битве, пока не отремонтируете корабль.
+"""
+            keyboard = [[InlineKeyboardButton("Назад", callback_data=ARENA)]]
+            return InlineKeyboardMarkup(keyboard), text
 
         # 🧍‍♂️ Проверка уже в очереди
         if arena_service.is_in_queue(player_id):

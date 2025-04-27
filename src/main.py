@@ -20,6 +20,7 @@ import src.presentation.screens.admin as adminScreens
 import src.presentation.screens.registry as registry
 
 from src.infrastructure.database import SessionLocal
+from src.application.arena_service import ArenaService
 from src.application.player_service import PlayerService
 from src.application.ship_service import ShipService
 from src.application.utm_service import UtmService
@@ -423,11 +424,25 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # commandName = update.message.text
     query = update.callback_query
     await query.answer()  # отвечаем на callback
-        
+    
+    # imageLink = getImage(commandName)
     screen_id = query.data
     handler, match = registry.resolve_handler(screen_id)
+
+    if screen_id != arenaScreens.ARENA_QUEUE:
+        db = SessionLocal()
+        try:
+            player_id = update.message.from_user.id
+
+            arenaService = ArenaService(db)
+            arenaService.leave_queue(player_id)
+        except Exception as e:
+            print(e)
+        finally:
+            db.close()
 
     if not handler:
         await query.edit_message_text("Неизвестный экран.")
@@ -450,6 +465,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     commandName = update.message.text
     handler = registry.handlers.get(commandName)
+
+    db = SessionLocal()
+    try:
+        player_id = update.message.from_user.id
+
+        arenaService = ArenaService(db)
+        arenaService.leave_queue(player_id)
+    except Exception as e:
+        print(e)
+    finally:
+        db.close()
 
     if not handler:
         update.message.reply_text("Неизвестная команда")
@@ -474,11 +500,16 @@ async def error_handler(update, context):
         )
 
 
+async def start_background_tasks(app: Application):
+    asyncio.create_task(run_arena_matchmaking(app.bot))
+
+
 def main():
 
     token = os.getenv('BOT_TOKEN')
 
-    application = Application.builder().token(token).build()
+    # application = Application.builder().token(token).build()
+    application = Application.builder().token(token).post_init(start_background_tasks).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("admin", admin))
@@ -504,5 +535,6 @@ def main():
 
 if __name__ == '__main__':
     # Запуск фонового потока поиска боёв
-    asyncio.get_event_loop().create_task(run_arena_matchmaking())
-    asyncio.run(main())
+    # asyncio.get_event_loop().create_task(run_arena_matchmaking())
+    # asyncio.run(main())
+    main()
