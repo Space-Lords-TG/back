@@ -116,6 +116,7 @@ class PlayerService:
         
         return players
     
+
     def get_username(self, player_id: int):
         player = self.db.execute(
             select(Player).
@@ -133,4 +134,5 @@ class PlayerService:
             select(PlayerResources).
             where(PlayerResources.player_id == player_id)
         ).scalar_one()
+
 

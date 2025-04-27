@@ -8,8 +8,8 @@ from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackQueryHandler, \
     CommandHandler, ContextTypes, MessageHandler, filters
 
-
 from src.application.config_loader import config
+from threading import Thread
 
 from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
@@ -22,6 +22,8 @@ import src.presentation.screens.registry as registry
 from src.infrastructure.database import SessionLocal
 from src.application.player_service import PlayerService
 from src.application.utm_service import UtmService
+
+from src.healthcheck import run_fastapi
 
 import asyncio
 
@@ -132,9 +134,10 @@ async def get_utm(update: Update, context: ContextTypes.DEFAULT_TYPE):
         service = UtmService(db)
         used_count = service.get_utm_used_count(tag=tag)
         if used_count is None:
-                await update.message.reply_text(f"Метка <code>{tag}</code> еще не создана", \
-                                        parse_mode=ParseMode.HTML)
-                return
+
+            await update.message.reply_text(f"Метка <code>{tag}</code> еще не создана", \
+                                    parse_mode=ParseMode.HTML)
+            return
 
         if not tag:
             raise ValueError("Не задано название метки UTM")
@@ -188,6 +191,7 @@ async def get_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         service = PlayerService(db=db)
         used_count = service.get_new_users_count(interval=delta)
+
 
         await update.message.reply_text(f"{message}:\n<code>{used_count}</code>", \
                                         parse_mode=ParseMode.HTML)
@@ -353,6 +357,9 @@ def main():
     # application.add_handler(CallbackQueryHandler(broadcast_button))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
+
+    fastapi_thread = Thread(target=run_fastapi, daemon=True)
+    fastapi_thread.start()
 
     # Запускаем бота
     application.run_polling()
