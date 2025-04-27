@@ -26,6 +26,8 @@ from src.application.utm_service import UtmService
 
 from src.healthcheck import run_fastapi
 
+from arena_matchmaker import run_arena_matchmaking
+
 import asyncio
 
 # Настройка логирования
@@ -502,5 +504,5 @@ def main():
 
 if __name__ == '__main__':
     # Запуск фонового потока поиска боёв
-    # asyncio.get_event_loop().create_task(run_arena_matchmaking())
+    asyncio.get_event_loop().create_task(run_arena_matchmaking())
     asyncio.run(main())
