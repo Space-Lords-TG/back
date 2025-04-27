@@ -5,11 +5,7 @@ from src.application.arena_service import ArenaService
 # import time
 import asyncio
 
-bot = Bot(token = os.getenv('BOT_TOKEN'))
-
-async def run_arena_matchmaking(interval: int = 5):
-    bot = Bot(token = os.getenv('BOT_TOKEN'))
-
+async def run_arena_matchmaking(bot, interval: int = 5):
     while True:
         db = SessionLocal()
         try:
@@ -17,7 +13,6 @@ async def run_arena_matchmaking(interval: int = 5):
             matches = arena.find_match()
             if not matches:
                 print("[DEBUG] Нет подходящих матчей")
-                continue
             for p1, p2 in matches:
                 result = arena.resolve_battle(p1, p2)
                 if result is None:

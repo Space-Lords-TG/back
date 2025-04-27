@@ -10,7 +10,7 @@ from telegram.ext import Application, CallbackQueryHandler, \
 
 from src.application.config_loader import config
 from threading import Thread
-
+from src.arena_matchmaker import run_arena_matchmaking
 from src.presentation.utils.getImage import getImage
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.map as mapScreens
@@ -338,12 +338,13 @@ async def error_handler(update, context):
             parse_mode=ParseMode.HTML
         )
 
+async def start_background_tasks(app: Application):
+    asyncio.create_task(run_arena_matchmaking(app.bot))
 
 def main():
-
     token = os.getenv('BOT_TOKEN')
 
-    application = Application.builder().token(token).build()
+    application = Application.builder().token(token).post_init(start_background_tasks).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("admin", admin))
@@ -352,20 +353,13 @@ def main():
     application.add_handler(CommandHandler("get_users", get_users))
     # application.add_handler(broadcast_handler)
     application.add_handler(CommandHandler("broadcast", broadcast))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, \
-                                           handle_standard_buttons))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_standard_buttons))
     # application.add_handler(CallbackQueryHandler(broadcast_button))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
 
-    fastapi_thread = Thread(target=run_fastapi, daemon=True)
-    fastapi_thread.start()
-
     # Запускаем бота
     application.run_polling()
 
-
 if __name__ == '__main__':
-    # Запуск фонового потока поиска боёв
-    # asyncio.get_event_loop().create_task(run_arena_matchmaking())
-    asyncio.run(main())
+    main()

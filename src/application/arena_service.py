@@ -242,14 +242,15 @@ class ArenaService:
             # file = BytesIO(log_text.encode("utf-8"))
             # fileID = str(random.random())
             # file.name = f"battle_log_{fileID}.txt"
-
-            await bot.send_message(chat_id=player1_id, text=text1, parse_mode=ParseMode.HTML)
-            await bot.send_message(chat_id=player2_id, text=text2, parse_mode=ParseMode.HTML)
-
-            print(f"[NOTIFY] Уведомления отправлены {player1_id} и {player2_id}")
+            for player_id, text in [(player1_id, text1), (player2_id, text2)]:
+                try:
+                    await bot.send_message(chat_id=player_id, text=text, parse_mode=ParseMode.HTML)
+                    print(f"[NOTIFY] Уведомление отправлено игроку {player_id}")
+                except Exception as send_error:
+                    print(f"[ERROR] Не удалось отправить сообщение игроку {player_id}: {str(send_error)}")
 
         except Exception as e:
-            print(f"[ERROR] Не удалось отправить уведомления: {str(e)}")
+            print(f"[ERROR] Ошибка в notify_players_about_fight: {str(e)}")
 
     def _build_fight_result_text(self, player_id: int, opponent_id: int, result_data: dict) -> str:
         winner = result_data.get("winner")

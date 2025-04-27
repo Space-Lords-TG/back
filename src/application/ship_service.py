@@ -475,10 +475,7 @@ class ShipService:
         crit_rate = self.calc(gun.base_crit_rate, gun.gain_crit_rate, level) / 100
         crit_damage = self.calc(gun.base_crit_damage, gun.gain_crit_damage, level)
         speed = self.calc(gun.base_speed, gun.gain_speed, level)
-
-        speed_divisor = config["power"]["speed_divisor"]
-
-        return (speed / speed_divisor) * (damage * (1 + crit_damage * crit_rate)) # Мощь пушки = Скорость / 100 * (Урон * (1 + Крит. урон * Крит. частота))
+        return (speed / 100) * (damage * (1 + crit_damage * crit_rate))
 
     def get_hull_power(self, hull: HullTemplate, level: int) -> float:
         health = float(self.calc(
@@ -504,7 +501,11 @@ class ShipService:
         survivability = (health / (100 - armor)) + (shields / 100)
         return config["power"]["base_multiplier"] * (1 + maneuver * config["power"]["maneuver_multiplier"]) * survivability
 
-    def get_upgrade_cost(self, old_power: float, new_power: float) -> int:
-        base = config["upgrade"]["cost_multiplier"]
-        exponent = config["upgrade"]["cost_exponent"]
-        return round(base * (new_power ** exponent))
+    #def get_upgrade_cost(self, old_power: float, new_power: float) -> int:
+    #    base = config["upgrade"]["cost_multiplier"]
+    #    exponent = config["upgrade"]["cost_exponent"]
+    #    return round(base * (new_power ** exponent))
+    
+    def get_upgrade_cost(self, new_power: float) -> int:
+        exponent = config["upgrade"].get("cost_exponent", 1.5)  # По умолчанию 1.5
+        return round(new_power ** exponent)
