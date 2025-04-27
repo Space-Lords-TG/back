@@ -63,8 +63,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Добро пожаловать!", \
                                     reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     
-    query = update.callback_query
-    markup, text = mainMenu.get_default_menu(query)
+    # query = update.callback_query
+    markup, text = mainMenu.get_default_menu(update.message)
     imageLink = getImage(mainMenu.DEFAULT)
 
     await update.message.reply_photo(photo=imageLink, \
