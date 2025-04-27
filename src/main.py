@@ -303,8 +303,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         arenaService = ArenaService(db)
         arenaService.leave_queue(player_id)
     except Exception as e:
-        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
-                                        parse_mode=ParseMode.HTML)
         return
     finally:
         db.close()
@@ -342,8 +340,6 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
         arenaService = ArenaService(db)
         arenaService.leave_queue(player_id)
     except Exception as e:
-        await update.message.reply_text(f"Ошибка:\n<code>{str(e)}</code>", \
-                                        parse_mode=ParseMode.HTML)
         return
     finally:
         db.close()
