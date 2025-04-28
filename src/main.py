@@ -506,7 +506,8 @@ async def start_background_tasks(app: Application):
 
 def main():
 
-    token = os.getenv('BOT_TOKEN')
+    # token = os.getenv('BOT_TOKEN')
+    token = "ABOBA"
 
     # application = Application.builder().token(token).build()
     application = Application.builder().token(token).post_init(start_background_tasks).build()
