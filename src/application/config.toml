@@ -41,7 +41,7 @@ speed_divisor = 100.0             # делитель скорости для п�
 # Параметры админки
 # ======================
 [admins]
-bot_name = "space_lords_dev"
+bot_name = "space_lords_bot"
 admins_array = [
     269251765,
     462775464,
