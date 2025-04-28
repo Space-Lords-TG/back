@@ -246,8 +246,9 @@ class ShipService:
 
         # Вычисляем мощь сейчас и на следующем уровне
         power_now = self.get_weapon_power(gun, current_level)
-        power_next = self.get_weapon_power(gun, next_level)
-        cost = self.get_upgrade_cost(power_now, power_next)
+        # power_next = self.get_weapon_power(gun, next_level)
+        # cost = self.get_upgrade_cost(power_now, power_next)
+        cost = self.get_upgrade_cost(power_now)
 
         if resources.crystalls < cost:
             return {
@@ -312,8 +313,9 @@ class ShipService:
         next_level = current_level + 1
 
         power_now = self.get_hull_power(hull, current_level)
-        power_next = self.get_hull_power(hull, next_level)
-        cost = self.get_upgrade_cost(power_now, power_next)
+        # power_next = self.get_hull_power(hull, next_level)
+        # cost = self.get_upgrade_cost(power_now, power_next)
+        cost = self.get_upgrade_cost(power_now)
 
         resources = self.db.execute(
             select(PlayerResources).
@@ -408,7 +410,11 @@ class ShipService:
             raise ValueError("Корпус уже полностью отремонтирован!")
 
         damage_ratio = (max_health - current_health) / max_health
-        health_ratio = current_health / max_health
+        # health_ratio = current_health / max_health
+        # К О С Т Ы Л Ь
+        # Единица добавлена для избежания нулевого времени
+        # ремонта (дальше идёт умножение на эту величину)
+        health_ratio = 1 + current_health / max_health
 
         power_gun = self.get_weapon_power(gun, level_gun)
         power_hull = self.get_hull_power(hull, level_hull)

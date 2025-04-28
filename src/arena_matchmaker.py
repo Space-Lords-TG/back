@@ -1,16 +1,11 @@
-from telegram import Bot
-import os
+#from telegram import Bot
+#import os
 from src.infrastructure.database import SessionLocal
 from src.application.arena_service import ArenaService
 # import time
 import asyncio
 
-# bot = Bot(token = os.getenv('BOT_TOKEN'))
-
-async def run_arena_matchmaking(interval: int = 5):
-    bot = Bot(token = os.getenv('BOT_TOKEN'))
-    print("ARENA MATCHMAKING START")
-
+async def run_arena_matchmaking(bot, interval: int = 5):
     while True:
         db = SessionLocal()
         try:

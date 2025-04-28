@@ -3,7 +3,7 @@
 # ======================
 
 [game]
-initial_resources = 10000
+initial_resources = 100000
 max_level = 20
 match_power_threshold = 100
 
@@ -13,7 +13,7 @@ match_power_threshold = 100
 
 [repair]
 cost_per_power = 0.05             # C — цена починки единицы мощности
-time_per_1000_power_sec = 60      # T — секунд на 1000 мощи
+time_per_1000_power_sec = 1      # T — секунд на 1000 мощи
 min_cost = 1                      # минимальная цена ремонта в ресурсах
 
 
@@ -41,7 +41,7 @@ speed_divisor = 100.0             # делитель скорости для п�
 # Параметры админки
 # ======================
 [admins]
-bot_name = "space_lords_dev_bot"
+bot_name = "space_lords_dev"
 admins_array = [
     269251765,
     462775464,
