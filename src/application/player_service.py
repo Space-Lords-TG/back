@@ -39,19 +39,22 @@ class PlayerService:
                 is_equipped=True
                 )
 
-            newShip = Ship(
-                player_id=id,
-                player_gun_id=1,
-                player_hull_id=1,
-                health=0,
-                shields=0
-            )
             self.db.add(newPlayer)
             self.db.add(newPlayerResources)
             self.db.add(newPlayerGun)
             self.db.add(newPlayerHull)
             self.db.commit()
+
+            newShip = Ship(
+                player_id=id,
+                player_gun_id=newPlayerGun.id,
+                player_hull_id=newPlayerHull.id,
+                health=0,
+                shields=0
+            )
+
             self.db.add(newShip)
+            self.db.commit()
 
             # Добавляем все оставшиеся оружия (неэкипированные)
             guns_count = config["game"]["guns_count"]
