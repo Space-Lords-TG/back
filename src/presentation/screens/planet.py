@@ -1,16 +1,18 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.ship as shipScreens
 
 # Определяем идентификаторы экранов
-PLANET = 'PLANET'
-POST_PLANET_CLAIM = 'POST_PLANET_CLAIM'
-POST_PLANET_GATHER = 'POST_PLANET_GATHER'
-PLANET_UPGRADE = 'PLANET_UPGRADE'
-POST_PLANET_UPGRADE = 'POST_PLANET_UPGRADE'
-PLANET_ENEMY = 'PLANET_ENEMY'
-
+PLANET = config["screens"]['PLANET']
+POST_PLANET_CLAIM = config["screens"]['POST_PLANET_CLAIM']
+POST_PLANET_GATHER = config["screens"]['POST_PLANET_GATHER']
+PLANET_UPGRADE = config["screens"]['PLANET_UPGRADE']
+POST_PLANET_UPGRADE = config["screens"]['POST_PLANET_UPGRADE']
+PLANET_ENEMY = config["screens"]['PLANET_ENEMY']
+PLANET_FIGHT = config["screens"]['PLANET_FIGHT']
 
 # Функция, возвращающая разметку для планеты
 @register(PLANET)
@@ -176,9 +178,6 @@ def get_enemy_planet(query: CallbackQuery):
 Манёвренность: 100
 Здоровье: 1200
 """
-
-# Определяем идентификаторы экранов
-PLANET_FIGHT = 'PLANET_FIGHT'
 
 
 # Функция, возвращающая разметку для арены

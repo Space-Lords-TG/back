@@ -1,11 +1,13 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
 from src.presentation.screens.registry import register
 import src.presentation.screens.planet as planetScreens
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
 
 # Определяем идентификаторы экранов
-DEFAULT = 'ГЛАВНОЕ МЕНЮ'
+DEFAULT = config["screens"]["DEFAULT"]
 
 # Функция, возвращающая разметку для стандартного экрана
 @register(DEFAULT)

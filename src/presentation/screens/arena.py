@@ -1,4 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
 from src.presentation.screens.registry import register
 from src.application.ship_service import ShipService
 from src.application.arena_service import ArenaService
@@ -7,8 +9,8 @@ from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 
 # Определяем идентификаторы экранов
-ARENA = 'АРЕНА'
-ARENA_QUEUE = 'ARENA_QUEUE'
+ARENA = config["screens"]["ARENA"]
+ARENA_QUEUE = config["screens"]["ARENA_QUEUE"]
 
 # Функция, возвращающая разметку для арены
 @register(ARENA)

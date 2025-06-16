@@ -1,4 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
+
+from src.application.config_loader import config
 from src.presentation.screens.registry import register, register_pattern
 from src.application.ship_service import ShipService
 from src.infrastructure.database import SessionLocal
@@ -7,25 +9,25 @@ from pytz import timezone as pytz_timezone
 
 # Определяем идентификаторы экранов
 # Главные экраны
-SHIP = 'КОРАБЛЬ'
-SHIP_WEAPON = 'SHIP_WEAPON'
-SHIP_BODY = 'SHIP_BODY'
+SHIP = config["screens"]['SHIP']
+SHIP_WEAPON = config["screens"]['SHIP_WEAPON']
+SHIP_BODY = config["screens"]['SHIP_BODY']
 
 # Улучшения
-SHIP_WEAPON_UPGRADE = 'SHIP_WEAPON_UPGRADE'
-POST_SHIP_WEAPON_UPGRADE = 'POST_SHIP_WEAPON_UPGRADE'
-SHIP_HULL_UPGRADE = 'SHIP_HULL_UPGRADE'
-POST_HULL_UPGRADE = 'POST_HULL_UPGRADE'
+SHIP_WEAPON_UPGRADE = config["screens"]['SHIP_WEAPON_UPGRADE']
+POST_SHIP_WEAPON_UPGRADE = config["screens"]['POST_SHIP_WEAPON_UPGRADE']
+SHIP_HULL_UPGRADE = config["screens"]['SHIP_HULL_UPGRADE']
+POST_HULL_UPGRADE = config["screens"]['POST_HULL_UPGRADE']
 
 # Замены
-SHIP_WEAPON_CHANGE = 'SHIP_WEAPON_CHANGE'
-POST_SHIP_WEAPON = "POST_SHIP_WEAPON"  # динамический handler
-SHIP_HULL_CHANGE = 'SHIP_HULL_CHANGE'
-POST_SHIP_BODY = "POST_SHIP_BODY"      # динамический handler
+SHIP_WEAPON_CHANGE = config["screens"]['SHIP_WEAPON_CHANGE']
+POST_SHIP_WEAPON = config["screens"]["POST_SHIP_WEAPON"]  # динамический handler
+SHIP_HULL_CHANGE = config["screens"]['SHIP_HULL_CHANGE']
+POST_SHIP_BODY = config["screens"]["POST_SHIP_BODY"]      # динамический handler
 
 # Ремонт
-SHIP_BODY_REPAIR = 'SHIP_BODY_REPAIR'
-POST_SHIP_BODY_REPAIR = 'POST_SHIP_BODY_REPAIR'
+SHIP_BODY_REPAIR = config["screens"]['SHIP_BODY_REPAIR']
+POST_SHIP_BODY_REPAIR = config["screens"]['POST_SHIP_BODY_REPAIR']
 
 # Функция, возвращающая разметку для корабля
 # Кнопка в меню "КОРАБЛЬ"

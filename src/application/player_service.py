@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 import datetime
 
+from src.application.config_loader import config
 from src.infrastructure.models import (
     Player, PlayerGun, PlayerHull, PlayerResources, Ship, HullTemplate
 )
@@ -37,31 +38,40 @@ class PlayerService:
                 hull_id=1,
                 is_equipped=True
                 )
-            newShip = Ship(player_id=id, player_gun_id=1, player_hull_id=1, health=100, shields=100)
+            newShip = Ship(
+                player_id=id,
+                player_gun_id=1,
+                player_hull_id=1,
+                health=100,
+                shields=100
+            )
             self.db.add(newPlayer)
             self.db.add(newPlayerResources)
             self.db.add(newPlayerGun)
             self.db.add(newPlayerHull)
             self.db.add(newShip)
+
             # Добавляем все оставшиеся оружия (неэкипированные)
-            for i in range(2, 8):
+            guns_count = config["game"]["guns_count"]
+            for i in range(2, guns_count):
                 anotherPlayerGun = PlayerGun(
                     player_id=id,
                     gun_id=i,
                     is_equipped=False
-                    )
+                )
                 self.db.add(anotherPlayerGun)
 
             # Добавляем все оставшиеся корпуса (неэкипированные)
-            for i in range(2, 6):
+            hulls_count = config["game"]["hulls_count"]
+            for i in range(2, hulls_count):
                 anotherPlayerHull = PlayerHull(
                     player_id=id,
                     hull_id=i,
                     is_equipped=False
-                    )
+                )
                 self.db.add(anotherPlayerHull)
-
             self.db.commit()
+
             # Пересчитываем параметры корабля
             self.recalculate_stats(newShip)
             self.db.commit()
@@ -74,22 +84,21 @@ class PlayerService:
         player_hull = self.db.get(
             PlayerHull,
             ship.player_hull_id
-            )
+        )
         hull_template = self.db.get(
             HullTemplate,
             player_hull.hull_id
-            )
-
+        )
         ship.health = self.calc(
             hull_template.base_max_health,
             hull_template.gain_max_health,
             player_hull.current_level
-            )
+        )
         ship.shields = self.calc(
             hull_template.base_max_shields,
             hull_template.gain_max_shields,
             player_hull.current_level
-            )
+        )
 
     def calc(self, base, gain, level):
         base = float(base)
@@ -120,7 +129,7 @@ class PlayerService:
     def get_all(self):
         players = self.db.execute(
             select(Player)
-            ).scalars().all()
+        ).scalars().all()
         
         return players
     
@@ -136,7 +145,7 @@ class PlayerService:
         
         return player.username
     
-    # def get_ship(self, player)
+
     def get_resources(self, player_id: int):
         return self.db.execute(
             select(PlayerResources).

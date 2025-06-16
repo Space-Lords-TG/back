@@ -6,18 +6,18 @@ from src.infrastructure.database import SessionLocal
 from src.application.config_loader import config
 
 # Определяем идентификаторы экранов
-ADMIN = "ADMIN"
-ADMIN_UTM_ALL = "ADMIN_UTM_ALL"
-ADMIN_CREATE_UTM = "ADMIN_CREATE_UTM"
-ADMIN_REGISTRATION_INFO = "ADMIN_REGISTRSTION_INFO" 
-ADMIN_PLAYER_TABLES = "ADMIN_PLAYER_TABLES"
-ADMIN_SET_RESOURCES = "ADMIN_SET_RESOURCES"
-ADMIN_BROADCAST = "ADMIN_BROADCAST"
+ADMIN = config["screens"]["ADMIN"]
+ADMIN_UTM_ALL = config["screens"]["ADMIN_UTM_ALL"]
+ADMIN_CREATE_UTM = config["screens"]["ADMIN_CREATE_UTM"]
+ADMIN_REGISTRATION_INFO = config["screens"]["ADMIN_REGISTRSTION_INFO"]
+ADMIN_PLAYER_TABLES = config["screens"]["ADMIN_PLAYER_TABLES"]
+ADMIN_SET_RESOURCES = config["screens"]["ADMIN_SET_RESOURCES"]
+ADMIN_BROADCAST = config["screens"]["ADMIN_BROADCAST"]
 
 def checkAdmin(query: CallbackQuery | Message):
     # Проверка вхождение пользователя в состав админов
     player_id = query.from_user.id
-    if (player_id not in config["admins"]["admins_array"]):
+    if player_id not in config["admins"]["admins_array"]:
         raise ValueError("Неизвестная команда")
 
 # Функция, возвращающая разметку для админки
