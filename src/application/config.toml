@@ -6,6 +6,8 @@
 initial_resources = 100000
 max_level = 20
 match_power_threshold = 100
+guns_count = 8
+hulls_count = 6
 
 # ======================
 # Ремонт корабля
