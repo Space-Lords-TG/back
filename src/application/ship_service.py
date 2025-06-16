@@ -20,26 +20,29 @@ class ShipService:
         ship = self.db.execute(
             select(Ship).
             where(Ship.player_id == player_id)
-            ).scalar_one_or_none()
+        ).scalar_one_or_none()
         if not ship:
             raise ValueError("Активный корабль не найден")
 
         player_gun = self.db.get(
             PlayerGun,
-            ship.player_gun_id)
+            ship.player_gun_id
+        )
+
         player_hull = self.db.get(
             PlayerHull,
             ship.player_hull_id
-            )
+        )
 
         gun = self.db.get(
             GunTemplate,
             player_gun.gun_id
-            )
+        )
+
         hull = self.db.get(
             HullTemplate,
             player_hull.hull_id
-            )
+        )
 
         return {
             "ship": ship,
@@ -67,15 +70,12 @@ class ShipService:
                 self.calc(
                         gun.base_damage,
                         gun.gain_damage,
-                        level_gun
-                        ), 
-                    2),
+                        level_gun), 2),
             "crit_rate_gun": round(
                 self.calc(
                         gun.base_crit_rate,
                         gun.gain_crit_rate,
-                    level_gun) * 100, 
-                    2),
+                        level_gun) * 100, 2),
             "crit_damage_gun": round(
                 self.calc(
                     gun.base_crit_damage, 
