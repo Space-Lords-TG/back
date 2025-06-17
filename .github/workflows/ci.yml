@@ -86,20 +86,18 @@ jobs:
         id: vars
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "env_suffix=PROD" >> $GITHUB_OUTPUT
             echo "env_suffix_lower=prod" >> $GITHUB_OUTPUT
           else
-            echo "env_suffix=DEV" >> $GITHUB_OUTPUT
-            echo "env_suffix_lower=dev" >> $GITHUB_OUTPUT
+            echo "env_suffix_lower=test" >> $GITHUB_OUTPUT
           fi
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
-          host: ${{ secrets[format('SSH_HOST_{0}', steps.vars.outputs.env_suffix)] }}
-          username: ${{ secrets[format('SSH_USERNAME_{0}', steps.vars.outputs.env_suffix)] }}
-          password: ${{ secrets[format('SSH_KEY_{0}', steps.vars.outputs.env_suffix)] }}
-          port: ${{ secrets[format('SSH_PORT_{0}', steps.vars.outputs.env_suffix)] }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             cd app
             docker-compose stop backend-${{ steps.vars.outputs.env_suffix_lower }}
