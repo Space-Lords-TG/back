@@ -1,4 +1,4 @@
-name: CI CD PROD
+name: CI/CD (Auto PROD/DEV)
 
 permissions:
   contents: read
@@ -9,16 +9,19 @@ on:
   push:
     branches:
       - main
+      - dev
+      - hotfix
 
 env:
-  REGISTRY: ${{ secrets.DOCKER_REGISTRY_PROD }}
-  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_PROD }}
+  # Динамически определяем суффикс (PROD для main, DEV для dev/hotfix)
+  ENV_SUFFIX: ${{ contains('refs/heads/main', github.ref) && 'PROD' || 'DEV' }}
+  REGISTRY: ${{ secrets[format('DOCKER_REGISTRY_{0}', env.ENV_SUFFIX)] }}
+  IMAGE_NAME: ${{ secrets[format('DOCKER_IMAGE_{0}', env.ENV_SUFFIX)] }}
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-
-    environment: space-lords-prod
+    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
   build-and-push:
     needs: lint
     runs-on: ubuntu-latest
-    environment: space-lords-prod
+    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
       - name: Check out repository
@@ -56,7 +59,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-
       - name: Build and push Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
 
@@ -65,15 +67,12 @@ jobs:
           file: Dockerfile
           platforms: linux/arm64,linux/amd64
           build-args: |
-
-            BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }}
-
-            DB_USERNAME=${{ secrets.DB_USERNAME_PROD }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD_PROD }}
-            DB_IP=${{ secrets.DB_IP_PROD }}
-            DB_PORT=${{ secrets.DB_PORT_PROD }}
-            DB_NAME=${{ secrets.DB_NAME_PROD }}
-
+            BOT_TOKEN=${{ secrets[format('BOT_TOKEN_{0}', env.ENV_SUFFIX)] }}
+            DB_USERNAME=${{ secrets[format('DB_USERNAME_{0}', env.ENV_SUFFIX)] }}
+            DB_PASSWORD=${{ secrets[format('DB_PASSWORD_{0}', env.ENV_SUFFIX)] }}
+            DB_IP=${{ secrets[format('DB_IP_{0}', env.ENV_SUFFIX)] }}
+            DB_PORT=${{ secrets[format('DB_PORT_{0}', env.ENV_SUFFIX)] }}
+            DB_NAME=${{ secrets[format('DB_NAME_{0}', env.ENV_SUFFIX)] }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
@@ -81,23 +80,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-    environment: space-lords-prod
+    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
-      - name: multiple command
+      - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: | 
+          host: ${{ secrets[format('SSH_HOST_{0}', env.ENV_SUFFIX)] }}
+          username: ${{ secrets[format('SSH_USERNAME_{0}', env.ENV_SUFFIX)] }}
+          password: ${{ secrets[format('SSH_KEY_{0}', env.ENV_SUFFIX)] }}
+          port: ${{ secrets[format('SSH_PORT_{0}', env.ENV_SUFFIX)] }}
+          script: |
             cd app
-            docker-compose stop backend-prod
+            docker-compose stop backend-${{ lower(env.ENV_SUFFIX) }}
             docker system prune -f
-            docker-compose pull backend-prod
-            docker-compose up -d backend-prod
+            docker-compose pull backend-${{ lower(env.ENV_SUFFIX) }}
+            docker-compose up -d backend-${{ lower(env.ENV_SUFFIX) }}
             sleep 5
-            docker-compose ps backend-prod
-            docker-compose logs -t --tail="50" backend-prod
-
+            docker-compose ps backend-${{ lower(env.ENV_SUFFIX) }}
+            docker-compose logs -t --tail="50" backend-${{ lower(env.ENV_SUFFIX) }}
