@@ -1,5 +1,6 @@
 # import os
 import logging
+import os
 import traceback
 import datetime
 
@@ -506,8 +507,7 @@ async def start_background_tasks(app: Application):
 
 def main():
 
-    # token = os.getenv('BOT_TOKEN')
-    token = "ABOBA"
+    token = os.getenv('BOT_TOKEN_DEV')
 
     # application = Application.builder().token(token).build()
     application = Application.builder().token(token).post_init(start_background_tasks).build()
