@@ -1,4 +1,4 @@
-name: CI CD PROD
+name: CI CD DEV
 
 permissions:
   contents: read
@@ -8,18 +8,17 @@ on:
   workflow_dispatch:  # Добавляем ручной триггер
   push:
     branches:
-      - main
+      - dev
+      - hotfix
 
 env:
-  REGISTRY: ${{ secrets.DOCKER_REGISTRY_PROD }}
-  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_PROD }}
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY_DEV }}
+  IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_DEV }}
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-
-    environment: space-lords-prod
-
+    environment: space-lords-dev
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +40,7 @@ jobs:
   build-and-push:
     needs: lint
     runs-on: ubuntu-latest
-    environment: space-lords-prod
+    environment: space-lords-dev
 
     steps:
       - name: Check out repository
@@ -65,15 +64,12 @@ jobs:
           file: Dockerfile
           platforms: linux/arm64,linux/amd64
           build-args: |
-
-            BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }}
-
+            BOT_TOKEN=${{ secrets.BOT_TOKEN_DEV }}
             DB_USERNAME=${{ secrets.DB_USERNAME_DEV }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD_DEV }}
             DB_IP=${{ secrets.DB_IP_DEV }}
             DB_PORT=${{ secrets.DB_PORT_DEV }}
             DB_NAME=${{ secrets.DB_NAME_DEV }}
-
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
@@ -81,8 +77,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-    environment: space-lords-prod
-
+    environment: space-lords-dev
     steps:
       - name: multiple command
         uses: appleboy/ssh-action@v1.2.1
@@ -93,11 +88,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: | 
             cd app
-            docker-compose stop backend-prod
+            docker-compose stop backend-test
             docker system prune -f
-            docker-compose pull backend-prod
-            docker-compose up -d backend-prod
+            docker-compose pull backend-test
+            docker-compose up -d backend-test
             sleep 5
-            docker-compose ps backend-prod
-            docker-compose logs -t --tail="50" backend-prod
-
+            docker-compose ps backend-test
+            docker-compose logs -t --tail="50" backend-test
