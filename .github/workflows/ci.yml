@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - dev
-      - ci_testing
+      - hotfix
 
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY_DEV }}
