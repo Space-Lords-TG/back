@@ -37,7 +37,6 @@ jobs:
   build-and-push:
     needs: lint
     runs-on: ubuntu-latest
-    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
       - name: Check out repository
@@ -69,20 +68,18 @@ jobs:
           file: Dockerfile
           platforms: linux/arm64,linux/amd64
           build-args: |
-            BOT_TOKEN=${{ secrets[format('BOT_TOKEN_{0}', env.ENV_SUFFIX)] }}
-            DB_USERNAME=${{ secrets[format('DB_USERNAME_{0}', env.ENV_SUFFIX)] }}
-            DB_PASSWORD=${{ secrets[format('DB_PASSWORD_{0}', env.ENV_SUFFIX)] }}
-            DB_IP=${{ secrets[format('DB_IP_{0}', env.ENV_SUFFIX)] }}
-            DB_PORT=${{ secrets[format('DB_PORT_{0}', env.ENV_SUFFIX)] }}
-            DB_NAME=${{ secrets[format('DB_NAME_{0}', env.ENV_SUFFIX)] }}
+            BOT_TOKEN=${{ secrets[format('BOT_TOKEN_{0}', steps.vars.outputs.env_suffix)] }}
+            DB_USERNAME=${{ secrets[format('DB_USERNAME_{0}', steps.vars.outputs.env_suffix)] }}
+            DB_PASSWORD=${{ secrets[format('DB_PASSWORD_{0}', steps.vars.outputs.env_suffix)] }}
+            DB_IP=${{ secrets[format('DB_IP_{0}', steps.vars.outputs.env_suffix)] }}
+            DB_PORT=${{ secrets[format('DB_PORT_{0}', steps.vars.outputs.env_suffix)] }}
+            DB_NAME=${{ secrets[format('DB_NAME_{0}', steps.vars.outputs.env_suffix)] }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          labels: ${{ steps.meta.outputs.labels }}
-  
+          tags: ${{ secrets[format('DOCKER_REGISTRY_{0}', steps.vars.outputs.env_suffix)] }}/${{ secrets[format('DOCKER_IMAGE_{0}', steps.vars.outputs.env_suffix)] }}:${{ github.sha }},${{ secrets[format('DOCKER_REGISTRY_{0}', steps.vars.outputs.env_suffix)] }}/${{ secrets[format('DOCKER_IMAGE_{0}', steps.vars.outputs.env_suffix)] }}:latest
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
       - name: Determine environment suffix
@@ -97,16 +94,16 @@ jobs:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
-          host: ${{ secrets[format('SSH_HOST_{0}', env.ENV_SUFFIX)] }}
-          username: ${{ secrets[format('SSH_USERNAME_{0}', env.ENV_SUFFIX)] }}
-          password: ${{ secrets[format('SSH_KEY_{0}', env.ENV_SUFFIX)] }}
-          port: ${{ secrets[format('SSH_PORT_{0}', env.ENV_SUFFIX)] }}
+          host: ${{ secrets[format('SSH_HOST_{0}', steps.vars.outputs.env_suffix)] }}
+          username: ${{ secrets[format('SSH_USERNAME_{0}', steps.vars.outputs.env_suffix)] }}
+          password: ${{ secrets[format('SSH_KEY_{0}', steps.vars.outputs.env_suffix)] }}
+          port: ${{ secrets[format('SSH_PORT_{0}', steps.vars.outputs.env_suffix)] }}
           script: |
             cd app
-            docker-compose stop backend-${{ lower(env.ENV_SUFFIX) }}
+            docker-compose stop backend-${{ lower(steps.vars.outputs.env_suffix) }}
             docker system prune -f
-            docker-compose pull backend-${{ lower(env.ENV_SUFFIX) }}
-            docker-compose up -d backend-${{ lower(env.ENV_SUFFIX) }}
+            docker-compose pull backend-${{ lower(steps.vars.outputs.env_suffix) }}
+            docker-compose up -d backend-${{ lower(steps.vars.outputs.env_suffix) }}
             sleep 5
-            docker-compose ps backend-${{ lower(env.ENV_SUFFIX) }}
-            docker-compose logs -t --tail="50" backend-${{ lower(env.ENV_SUFFIX) }}
+            docker-compose ps backend-${{ lower(steps.vars.outputs.env_suffix) }}
+            docker-compose logs -t --tail="50" backend-${{ lower(steps.vars.outputs.env_suffix) }}
