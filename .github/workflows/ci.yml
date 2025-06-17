@@ -80,7 +80,19 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+
     steps:
+      - name: Determine environment suffix
+        id: vars
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "env_suffix=PROD" >> $GITHUB_OUTPUT
+            echo "env_suffix_lower=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env_suffix=DEV" >> $GITHUB_OUTPUT
+            echo "env_suffix_lower=dev" >> $GITHUB_OUTPUT
+          fi
+
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
