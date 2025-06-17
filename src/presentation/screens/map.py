@@ -1,6 +1,8 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 from src.application.config_loader import config
+from src.application.player_service import PlayerService
+from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 
@@ -29,9 +31,17 @@ POST_SECTOR_4 = config["screens"]['POST_SECTOR_4']
 # Функция, возвращающая разметку для карты
 @register(MAP)
 def get_map(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
 
-    # Фетч информации о системе и планетах
+        # Track screen view
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, MAP)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     planetNames = ["Альфа 1", "Альфа 2", "Альфа 3", "Альфа 4"]
 
@@ -175,7 +185,15 @@ def post_planet_body_4(query: CallbackQuery):
 # Функция, возвращающая разметку для секторов
 @register(SECTORS)
 def get_sectors(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SECTORS)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Фетч информации о текущем секторе и ближайших секторах
 

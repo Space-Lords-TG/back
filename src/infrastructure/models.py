@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, \
-    ForeignKey, DateTime, Boolean, BigInteger, Numeric, Sequence, func, UniqueConstraint
+    ForeignKey, DateTime, Boolean, BigInteger, Numeric, Sequence, func, UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy.orm import declarative_base, relationship
 from src.application.config_loader import config
 
@@ -138,3 +138,17 @@ class UTMtag(Base):
     tag = Column(String(64), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     used = Column(Integer, default=0, nullable=True)
+
+
+class ScreenView(Base):
+    __tablename__ = 'screen_views'
+    __table_args__ = (
+        PrimaryKeyConstraint('player_id', 'screen_key'),
+    )
+
+    player_id = Column(BigInteger, ForeignKey('players.id', ondelete='CASCADE'), nullable=False)
+    screen_key = Column(String, nullable=False)
+    view_count = Column(Integer, default=0, nullable=False)
+
+    player = relationship("Player", backref="screen_views")
+
