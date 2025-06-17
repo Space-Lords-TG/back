@@ -12,16 +12,9 @@ on:
       - dev
       - hotfix
 
-env:
-  # Динамически определяем суффикс (PROD для main, DEV для dev/hotfix)
-  ENV_SUFFIX: ${{ contains('refs/heads/main', github.ref) && 'PROD' || 'DEV' }}
-  REGISTRY: ${{ secrets[format('DOCKER_REGISTRY_{0}', env.ENV_SUFFIX)] }}
-  IMAGE_NAME: ${{ secrets[format('DOCKER_IMAGE_{0}', env.ENV_SUFFIX)] }}
-
 jobs:
   lint:
     runs-on: ubuntu-latest
-    environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +42,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+
+      - name: Determine environment suffix
+        id: vars
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "env_suffix=PROD" >> $GITHUB_OUTPUT
+          else
+            echo "env_suffix=DEV" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -83,6 +85,15 @@ jobs:
     environment: space-lords-${{ lower(env.ENV_SUFFIX) }}
 
     steps:
+      - name: Determine environment suffix
+        id: vars
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "env_suffix=PROD" >> $GITHUB_OUTPUT
+          else
+            echo "env_suffix=DEV" >> $GITHUB_OUTPUT
+          fi
+
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
