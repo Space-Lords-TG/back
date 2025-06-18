@@ -1,11 +1,12 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, \
-    ForeignKey, DateTime, Boolean, BigInteger, Numeric, Sequence, func, UniqueConstraint, PrimaryKeyConstraint
+    ForeignKey, DateTime, Boolean, BigInteger, Numeric, func, PrimaryKeyConstraint
 from sqlalchemy.orm import declarative_base, relationship
 from src.application.config_loader import config
 
 Base = declarative_base()
+
 
 class Player(Base):
     __tablename__ = 'players'
@@ -151,4 +152,3 @@ class ScreenView(Base):
     view_count = Column(Integer, default=0, nullable=False)
 
     player = relationship("Player", backref="screen_views")
-
