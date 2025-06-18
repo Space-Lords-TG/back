@@ -9,7 +9,7 @@ from src.application.config_loader import config
 ADMIN = config["screens"]["ADMIN"]
 ADMIN_UTM_ALL = config["screens"]["ADMIN_UTM_ALL"]
 ADMIN_CREATE_UTM = config["screens"]["ADMIN_CREATE_UTM"]
-ADMIN_REGISTRATION_INFO = config["screens"]["ADMIN_REGISTRSTION_INFO"]
+ADMIN_REGISTRATION_INFO = config["screens"]["ADMIN_REGISTRATION_INFO"]
 ADMIN_PLAYER_TABLES = config["screens"]["ADMIN_PLAYER_TABLES"]
 ADMIN_SET_RESOURCES = config["screens"]["ADMIN_SET_RESOURCES"]
 ADMIN_BROADCAST = config["screens"]["ADMIN_BROADCAST"]
