@@ -514,8 +514,10 @@ def post_ship_repair(query: CallbackQuery):
         if not result.get("can_repair", True):
             keyboard = [[InlineKeyboardButton("Назад", callback_data=SHIP_BODY)]]
             text = NOT_ENOUGH_RESOURCES_TEXT.format(
-                required=f"{result['required_metals']} металлов, {result['required_crystalls']} кристаллов",
-                available=f"{result['available_metals']} металлов, {result['available_crystalls']} кристаллов"
+                required=f"{result['required_metals']} металлов, "
+                         f"{result['required_crystalls']} кристаллов",
+                available=f"{result['available_metals']} металлов, "
+                          f"{result['available_crystalls']} кристаллов"
             )
             return InlineKeyboardMarkup(keyboard), text
 
