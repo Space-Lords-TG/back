@@ -6,6 +6,7 @@ from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.ship as shipScreens
+from texts import *
 
 # Определяем идентификаторы экранов
 PLANET = config["screens"]['PLANET']
@@ -16,57 +17,54 @@ POST_PLANET_UPGRADE = config["screens"]['POST_PLANET_UPGRADE']
 PLANET_ENEMY = config["screens"]['PLANET_ENEMY']
 PLANET_FIGHT = config["screens"]['PLANET_FIGHT']
 
-# Функция, возвращающая разметку для планеты
+
 @register(PLANET)
 def get_planet(query: CallbackQuery):
+    tutorial = False
     try:
         db = SessionLocal()
         player_id = query.from_user.id
         player_service = PlayerService(db)
         player_service.increment_screen_view(player_id, PLANET)
+        if player_service.get_screen_view_count(player_id, PLANET) == 0:
+            tutorial = True
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:
         db.close()
 
-    # Определяем, какой именно экран показывать в 
-    # зависимости от отношения игрока к планете
-    
-    return get_free_planet(query)
+    # В реальном приложении здесь должна быть логика определения состояния планеты
+    return get_free_planet(query, tutorial)
 
 
-# Свободная планета
-def get_free_planet(query: CallbackQuery):
-    # Проверка состояние игрока
-
+def get_free_planet(query: CallbackQuery, tutorial: bool = False):
     keyboard = [
         [InlineKeyboardButton(
             "Построить аванпост",
             callback_data=POST_PLANET_CLAIM)],
         [InlineKeyboardButton(
-            "Назад", 
+            "Назад",
             callback_data=mainMenu.DEFAULT)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-"""Планета
-Альфа 1
 
-Доступные ресурсы:
-10 кристаллов/час
+    planet_data = {
+        'name': 'Альфа 1',
+        'production_rate': 10,
+        'resource_type': 'кристаллов',
+        'level': 1,
+        'capacity': 500,
+        'claim_cost_metal': 10,
+        'claim_cost_fuel': 20
+    }
 
-Вместимость (уровень 1):
-500 кристаллов
+    text = PLANET_FREE_TEXT.format(**planet_data)
 
-Планета свободна
+    if tutorial:
+        text = PLANET_TUTORIAL_TEXT + text
 
-Стоимость постройки аванпоста:
-10 металла
-20 топлива
-"""
+    return InlineKeyboardMarkup(keyboard), text
 
 
-# Отправляет запрос на постройку аванпоста на планете
 @register(POST_PLANET_CLAIM)
 def post_planet_claim(query: CallbackQuery):
     try:
@@ -79,43 +77,34 @@ def post_planet_claim(query: CallbackQuery):
     finally:
         db.close()
 
-    # Отправка запроса
-    print('planet claim request')
-    
+    # Здесь должна быть логика проверки ресурсов и захвата планеты
     return get_owned_planet(query)
 
 
-# Своя планета
 def get_owned_planet(query: CallbackQuery):
-    # Проверка состояния игрока
-
     keyboard = [
         [InlineKeyboardButton(
-            "Собрать ресурсы", 
-            callback_data=POST_PLANET_GATHER), 
+            "Собрать ресурсы",
+            callback_data=POST_PLANET_GATHER),
             InlineKeyboardButton("Улучшить", callback_data=PLANET_UPGRADE)],
         [InlineKeyboardButton("Назад", callback_data=mainMenu.DEFAULT)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-"""Планета
-Альфа 1
-Уровень 2
 
-Производство:
-15 кристаллов/час
+    planet_data = {
+        'name': 'Альфа 1',
+        'level': 2,
+        'next_level': 3,
+        'production_rate': 15,
+        'resource_type': 'кристаллов',
+        'stored': 200,
+        'capacity': 1000,
+        'upgrade_cost_crystals': 50,
+        'upgrade_cost_metal': 80
+    }
 
-Накоплено ресурсов:
-200/1000 кристаллов
-
-Доступно улучшение до уровня 3:
-50 кристаллов
-80 металлов
-Вы владеете этой планетой.
-"""
+    return InlineKeyboardMarkup(keyboard), PLANET_OWNED_TEXT.format(**planet_data)
 
 
-# Отправляет запрос на сбор ресурсов
 @register(POST_PLANET_GATHER)
 def post_planet_gather(query: CallbackQuery):
     try:
@@ -128,9 +117,7 @@ def post_planet_gather(query: CallbackQuery):
     finally:
         db.close()
 
-    # Отправка запроса
-    print('planet gether request')
-    
+    # Здесь должна быть логика сбора ресурсов
     return get_owned_planet(query)
 
 
@@ -151,28 +138,27 @@ def get_planet_upgrade(query: CallbackQuery):
             "Подтвердить",
             callback_data=POST_PLANET_UPGRADE)],
         [InlineKeyboardButton(
-            "Назад", 
+            "Назад",
             callback_data=PLANET)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-"""Планета (улучшение)
-Вы хотите улучшить:
-Альфа 1
 
-Текущие показатели / улучшение:
-Кристаллы: 10/час -> 15/час
-Металлы: 15/час -> 20/час
-Вместимость:
-100 (К), 500 (М) -> 150 (К), 800 (М)
+    upgrade_data = {
+        'name': 'Альфа 1',
+        'current_crystal_rate': 10,
+        'next_crystal_rate': 15,
+        'current_metal_rate': 15,
+        'next_metal_rate': 20,
+        'current_crystal_capacity': 100,
+        'next_crystal_capacity': 150,
+        'current_metal_capacity': 500,
+        'next_metal_capacity': 800,
+        'upgrade_cost_crystals': 50,
+        'upgrade_cost_metal': 80
+    }
 
-Стоимость улучшения:
-50 кристаллов
-80 металлов
-"""
+    return InlineKeyboardMarkup(keyboard), PLANET_UPGRADE_PREVIEW_TEXT.format(**upgrade_data)
 
 
-# Отправляет запрос на улучшение планеты
 @register(POST_PLANET_UPGRADE)
 def post_planet_upgrade(query: CallbackQuery):
     try:
@@ -185,9 +171,7 @@ def post_planet_upgrade(query: CallbackQuery):
     finally:
         db.close()
 
-    # Отправка запроса
-    print('planet upgrade request')
-    
+    # Здесь должна быть логика улучшения планеты
     return get_owned_planet(query)
 
 
@@ -205,32 +189,31 @@ def get_enemy_planet(query: CallbackQuery):
 
     keyboard = [
         [InlineKeyboardButton(
-            "Захватить планету (бой)", 
-            callback_data=POST_PLANET_UPGRADE)],
+            "Захватить планету (бой)",
+            callback_data=PLANET_FIGHT)],
         [InlineKeyboardButton(
-            "Назад", 
+            "Назад",
             callback_data=mainMenu.DEFAULT)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-"""Планета
-Альфа 1
 
-Производство:
-15 кристаллов/час
-Планета занята игроков Aboba1337
-Скорость: 100
-Урон: 150
-Шанс крита: 15%
-Крит. урон: 200%
-Защита: 50
-Щиты: 20
-Манёвренность: 100
-Здоровье: 1200
-"""
+    enemy_data = {
+        'name': 'Альфа 1',
+        'production_rate': 15,
+        'resource_type': 'кристаллов',
+        'owner_name': 'Aboba1337',
+        'owner_speed': 100,
+        'owner_damage': 150,
+        'owner_crit_rate': 15,
+        'owner_crit_damage': 200,
+        'owner_armor': 50,
+        'owner_shields': 20,
+        'owner_maneuver': 100,
+        'owner_health': 1200
+    }
+
+    return InlineKeyboardMarkup(keyboard), PLANET_ENEMY_TEXT.format(**enemy_data)
 
 
-# Функция, возвращающая разметку для арены
 @register(PLANET_FIGHT)
 def get_planet_fight(query: CallbackQuery):
     try:
@@ -243,21 +226,23 @@ def get_planet_fight(query: CallbackQuery):
     finally:
         db.close()
 
-    # Если игрок уже в очереди, то отправляем соответствующий экран
-    # return get_queue(query)
-
     keyboard = [
-        [InlineKeyboardButton("Ремонт", callback_data=shipScreens.SHIP_BODY_REPAIR)]
+        [InlineKeyboardButton("Ремонт", callback_data=shipScreens.SHIP_BODY_REPAIR)],
         [InlineKeyboardButton("К планете", callback_data=PLANET)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-"""Результаты боя
 
-Вы: DeadlyParkur (220 💪)
-Противник: Aboba1337 (228 💪)
-Статистика боя:Нанесено урона: \
-    1337Получено урона: 1231Раундов: 17Оставшаяся прочность: 228 (18%)
-Итог: победа!
-Вы захватили планету.
-"""
+    fight_result = {
+        'player_name': 'DeadlyParkur',
+        'player_power': 220,
+        'enemy_name': 'Aboba1337',
+        'enemy_power': 228,
+        'damage_dealt': 1337,
+        'damage_received': 1231,
+        'rounds': 17,
+        'health_left': 228,
+        'health_percent': 18,
+        'result': 'победа',
+        'additional_message': 'Вы захватили планету.'
+    }
+
+    return InlineKeyboardMarkup(keyboard), PLANET_FIGHT_RESULT_TEXT.format(**fight_result)
