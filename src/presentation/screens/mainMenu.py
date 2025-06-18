@@ -5,20 +5,25 @@ from src.presentation.screens.registry import register
 import src.presentation.screens.planet as planetScreens
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
+from texts import *
 
 # Определяем идентификаторы экранов
 DEFAULT = config["screens"]["DEFAULT"]
+
 
 # Функция, возвращающая разметку для стандартного экрана
 @register(DEFAULT)
 def get_default_menu(query: CallbackQuery):
     player_id = query.from_user.id
     db = SessionLocal()
+    text = ""
 
     try:
         service = PlayerService(db)
         service.increment_screen_view(player_id, DEFAULT)
         resources = service.get_resources(player_id)
+        if service.get_screen_view_count(player_id, DEFAULT) > 0:
+            text = DEFAULT_TUTORIAL_TEXT
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:
@@ -28,18 +33,13 @@ def get_default_menu(query: CallbackQuery):
     keyboard = [
         [InlineKeyboardButton("Просмотр планеты", callback_data=planetScreens.PLANET)]
     ]
-    
-    return InlineKeyboardMarkup(keyboard), \
-f"""Главный экран
-<b>Добро пожаловать!</b>
 
-Вы можете настроить свой корабль воспользовавшись кнопками ниже.
-Разделы "карта" и "просмотр планеты" in development.
-Так же вы можете сразиться с другими игроками на арене,
-система найдёт вам подходящего оппонента.
+    resources_data = {
+        'crystalls': resources.crystalls,
+        'metals': resources.metals,
+        'gas': resources.gas
+    }
 
-<b>Ваши ресурсы</b>
-Кристаллы: {resources.crystalls}
-Металлы: {resources.metals}
-Газы: {resources.gas}
-"""
+    text += DEFAULT_MENU_TEXT.format(**resources_data)
+
+    return InlineKeyboardMarkup(keyboard),
