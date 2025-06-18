@@ -1,4 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
+
+from src.application.config_loader import config
+from src.application.player_service import PlayerService
 from src.presentation.screens.registry import register, register_pattern
 from src.application.ship_service import ShipService
 from src.infrastructure.database import SessionLocal
@@ -7,25 +10,25 @@ from pytz import timezone as pytz_timezone
 
 # Определяем идентификаторы экранов
 # Главные экраны
-SHIP = 'КОРАБЛЬ'
-SHIP_WEAPON = 'SHIP_WEAPON'
-SHIP_BODY = 'SHIP_BODY'
+SHIP = config["screens"]['SHIP']
+SHIP_WEAPON = config["screens"]['SHIP_WEAPON']
+SHIP_BODY = config["screens"]['SHIP_BODY']
 
 # Улучшения
-SHIP_WEAPON_UPGRADE = 'SHIP_WEAPON_UPGRADE'
-POST_SHIP_WEAPON_UPGRADE = 'POST_SHIP_WEAPON_UPGRADE'
-SHIP_HULL_UPGRADE = 'SHIP_HULL_UPGRADE'
-POST_HULL_UPGRADE = 'POST_HULL_UPGRADE'
+SHIP_WEAPON_UPGRADE = config["screens"]['SHIP_WEAPON_UPGRADE']
+POST_SHIP_WEAPON_UPGRADE = config["screens"]['POST_SHIP_WEAPON_UPGRADE']
+SHIP_HULL_UPGRADE = config["screens"]['SHIP_HULL_UPGRADE']
+POST_HULL_UPGRADE = config["screens"]['POST_HULL_UPGRADE']
 
 # Замены
-SHIP_WEAPON_CHANGE = 'SHIP_WEAPON_CHANGE'
-POST_SHIP_WEAPON = "POST_SHIP_WEAPON"  # динамический handler
-SHIP_HULL_CHANGE = 'SHIP_HULL_CHANGE'
-POST_SHIP_BODY = "POST_SHIP_BODY"      # динамический handler
+SHIP_WEAPON_CHANGE = config["screens"]['SHIP_WEAPON_CHANGE']
+POST_SHIP_WEAPON = config["screens"]["POST_SHIP_WEAPON"]  # динамический handler
+SHIP_HULL_CHANGE = config["screens"]['SHIP_HULL_CHANGE']
+POST_SHIP_BODY = config["screens"]["POST_SHIP_BODY"]      # динамический handler
 
 # Ремонт
-SHIP_BODY_REPAIR = 'SHIP_BODY_REPAIR'
-POST_SHIP_BODY_REPAIR = 'POST_SHIP_BODY_REPAIR'
+SHIP_BODY_REPAIR = config["screens"]['SHIP_BODY_REPAIR']
+POST_SHIP_BODY_REPAIR = config["screens"]['POST_SHIP_BODY_REPAIR']
 
 # Функция, возвращающая разметку для корабля
 # Кнопка в меню "КОРАБЛЬ"
@@ -37,6 +40,8 @@ def get_ship(message: Message):
             raise ValueError("Не удалось определить пользователя.")
 
         player_id = message.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP)
         service = ShipService(db)
         stats = service.get_ship_stats(player_id)
 
@@ -79,6 +84,8 @@ def get_ship_weapon(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_WEAPON)
         service = ShipService(db)
         
         stats = service.get_weapon_stats(player_id)
@@ -130,6 +137,8 @@ def get_ship_weapon_upgrade(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_WEAPON_UPGRADE)
         service = ShipService(db)
 
         ship_data = service.get_active_ship(player_id)
@@ -188,10 +197,12 @@ def get_ship_weapon_upgrade(query: CallbackQuery):
 # Отображение информации об оружии после улучшения
 @register(POST_SHIP_WEAPON_UPGRADE)
 def post_ship_weapon_upgrade(query: CallbackQuery):
-    player_id = query.from_user.id
-    db = SessionLocal()
-
     try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_SHIP_WEAPON_UPGRADE)
+
         service = ShipService(db)
         result = service.upgrade_weapon(player_id)
 
@@ -234,6 +245,9 @@ def get_ship_weapon_change(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_WEAPON_CHANGE)
+
         service = ShipService(db)
 
         current_stats = service.get_weapon_stats(player_id)
@@ -320,6 +334,8 @@ def get_ship_body(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_BODY)
         service = ShipService(db)
 
         stats = service.get_hull_stats(player_id)
@@ -375,6 +391,8 @@ def get_ship_hull_change(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_HULL_CHANGE)
         service = ShipService(db)
 
         stats = service.get_hull_stats(player_id)
@@ -457,6 +475,8 @@ def get_ship_hull_upgrade(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_HULL_UPGRADE)
         service = ShipService(db)
 
         ship_data = service.get_active_ship(player_id)
@@ -517,6 +537,8 @@ def post_ship_hull_upgrade(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_HULL_UPGRADE)
         service = ShipService(db)
 
         result = service.upgrade_hull(player_id)
@@ -557,6 +579,8 @@ def get_ship_repair(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SHIP_BODY_REPAIR)
         service = ShipService(db)
         data = service.get_active_ship(player_id)
 
@@ -655,6 +679,8 @@ def post_ship_repair(query: CallbackQuery):
 
     try:
         service = ShipService(db)
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_SHIP_BODY_REPAIR)
         result = service.repair_ship(player_id)
         if not result.get("can_repair", True):
             keyboard = [[InlineKeyboardButton("Назад", callback_data=SHIP_BODY)]]

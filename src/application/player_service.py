@@ -4,7 +4,7 @@ import datetime
 
 from src.application.config_loader import config
 from src.infrastructure.models import (
-    Player, PlayerGun, PlayerHull, PlayerResources, Ship, HullTemplate
+    Player, PlayerGun, PlayerHull, PlayerResources, Ship, HullTemplate, ScreenView
 )
 
 
@@ -158,19 +158,6 @@ class PlayerService:
         ).scalar_one()
         
     def set_resources(self, player_id: int, metals: int | None = None, crystalls: int | None = None, gas: int | None = None) -> bool:
-        """
-        Устанавливает абсолютные значения ресурсов игрока.
-        Если значение не указано (None), то оно не изменяется.
-
-        Args:
-            player_id (int): ID игрока
-            metals (int | None): Новое значение металла
-            crystalls (int | None): Новое значение кристаллов
-            gas (int | None): Новое значение газа
-
-        Returns:
-            bool: True если операция успешна, False если произошла ошибка
-        """
         try:
             # Получаем текущие ресурсы игрока
             resources = self.db.execute(
@@ -201,6 +188,31 @@ class PlayerService:
             self.db.rollback()
             return False
 
+    def increment_screen_view(self, player_id: int, screen_key: str) -> None:
+        screen_view = self.db.execute(
+            select(ScreenView)
+            .where(ScreenView.player_id == player_id)
+            .where(ScreenView.screen_key == screen_key)
+        ).scalar_one_or_none()
 
+        if screen_view:
+            screen_view.view_count += 1
+        else:
+            new_screen_view = ScreenView(
+                player_id=player_id,
+                screen_key=screen_key,
+                view_count=1
+            )
+            self.db.add(new_screen_view)
+        self.db.commit()
+
+    def get_screen_view_count(self, player_id: int, screen_key: str) -> int:
+        screen_view = self.db.execute(
+            select(ScreenView)
+            .where(ScreenView.player_id == player_id)
+            .where(ScreenView.screen_key == screen_key)
+        ).scalar_one_or_none()
+
+        return screen_view.view_count if screen_view else 0
 
 

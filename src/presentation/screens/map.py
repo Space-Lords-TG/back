@@ -1,35 +1,47 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
+from src.application.player_service import PlayerService
+from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 
 # Определяем идентификаторы экранов
-MAP = 'КАРТА'
+MAP = config["screens"]['MAP']
 
-PLANET_1 = 'PLANET_1'
-PLANET_2 = 'PLANET_2'
-PLANET_3 = 'PLANET_3'
-PLANET_4 = 'PLANET_4'
-POST_PLANET_1 = 'POST_PLANET_1'
-POST_PLANET_2 = 'POST_PLANET_2'
-POST_PLANET_3 = 'POST_PLANET_3'
-POST_PLANET_4 = 'POST_PLANET_4'
+PLANET_1 = config["screens"]['PLANET_1']
+PLANET_2 = config["screens"]['PLANET_2']
+PLANET_3 = config["screens"]['PLANET_3']
+PLANET_4 = config["screens"]['PLANET_4']
+POST_PLANET_1 = config["screens"]['POST_PLANET_1']
+POST_PLANET_2 = config["screens"]['POST_PLANET_2']
+POST_PLANET_3 = config["screens"]['POST_PLANET_3']
+POST_PLANET_4 =config["screens"][ 'POST_PLANET_4']
 
-SECTORS = 'SECTORS'
-SECTOR_1 = 'SECTOR_1'
-SECTOR_2 = 'SECTOR_2'
-SECTOR_3 = 'SECTOR_3'
-SECTOR_4 = 'SECTOR_4'
-POST_SECTOR_1 = 'POST_SECTOR_1'
-POST_SECTOR_2 = 'POST_SECTOR_2'
-POST_SECTOR_3 = 'POST_SECTOR_3'
-POST_SECTOR_4 = 'POST_SECTOR_4'
+SECTORS = config["screens"]['SECTORS']
+SECTOR_1 = config["screens"]['SECTOR_1']
+SECTOR_2 = config["screens"]['SECTOR_2']
+SECTOR_3 = config["screens"]['SECTOR_3']
+SECTOR_4 = config["screens"]['SECTOR_4']
+POST_SECTOR_1 = config["screens"]['POST_SECTOR_1']
+POST_SECTOR_2 = config["screens"]['POST_SECTOR_2']
+POST_SECTOR_3 = config["screens"]['POST_SECTOR_3']
+POST_SECTOR_4 = config["screens"]['POST_SECTOR_4']
 
 # Функция, возвращающая разметку для карты
 @register(MAP)
 def get_map(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
 
-    # Фетч информации о системе и планетах
+        # Track screen view
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, MAP)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     planetNames = ["Альфа 1", "Альфа 2", "Альфа 3", "Альфа 4"]
 
@@ -109,7 +121,7 @@ def get_planet_2(query: CallbackQuery):
     
     return InlineKeyboardMarkup(keyboard), make_planet_text(None, "Альфа 2")
 
-# Отправляет запрсо на перемещение к планете 2
+# Отправляет запрос на перемещение к планете 2
 @register(POST_PLANET_2)
 def post_planet_body_2(query: CallbackQuery):
     # Проверка состояние игрока
@@ -133,7 +145,7 @@ def get_planet_3(query: CallbackQuery):
     
     return InlineKeyboardMarkup(keyboard), make_planet_text(None, "Альфа 3")
 
-# Отправляет запрсо на перемещение к планете 3
+# Отправляет запрос на перемещение к планете 3
 @register(POST_PLANET_3)
 def post_planet_body_3(query: CallbackQuery):
     # Проверка состояние игрока
@@ -157,7 +169,7 @@ def get_planet_4(query: CallbackQuery):
     
     return InlineKeyboardMarkup(keyboard), make_planet_text(None, "Альфа 4")
 
-# Отправляет запрсо на перемещение к планете 4
+# Отправляет запрос на перемещение к планете 4
 @register(POST_PLANET_4)
 def post_planet_body_4(query: CallbackQuery):
     # Проверка состояние игрока
@@ -173,7 +185,15 @@ def post_planet_body_4(query: CallbackQuery):
 # Функция, возвращающая разметку для секторов
 @register(SECTORS)
 def get_sectors(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, SECTORS)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Фетч информации о текущем секторе и ближайших секторах
 
@@ -214,7 +234,7 @@ f"""Текущая система:
 1 пк/час.
 """
 
-# Функция, возвращающая разметку для секторе 1
+# Функция, возвращающая разметку для сектора 1
 @register(SECTOR_1)
 def get_sector_1(query: CallbackQuery):
     # Проверка состояния игрока
@@ -238,7 +258,7 @@ def post_sector_body_1(query: CallbackQuery):
     
     return mainMenu.get_default_menu(query)
 
-# Функция, возвращающая разметку для секторе 2
+# Функция, возвращающая разметку для сектора 2
 @register(SECTOR_2)
 def get_sector_2(query: CallbackQuery):
     # Проверка состояния игрока
@@ -262,7 +282,7 @@ def post_sector_body_2(query: CallbackQuery):
     
     return mainMenu.get_default_menu(query)
 
-# Функция, возвращающая разметку для секторе 3
+# Функция, возвращающая разметку для сектора 3
 @register(SECTOR_3)
 def get_sector_3(query: CallbackQuery):
     # Проверка состояния игрока
@@ -276,7 +296,7 @@ def get_sector_3(query: CallbackQuery):
     
     return InlineKeyboardMarkup(keyboard), make_sector_text(None, "Чебупель")
 
-# Отправляет запрсо на перемещение к секторе 3
+# Отправляет запрос на перемещение к сектору 3
 @register(POST_SECTOR_3)
 def post_sector_body_3(query: CallbackQuery):
     # Проверка состояние игрока
@@ -300,7 +320,7 @@ def get_sector_4(query: CallbackQuery):
     
     return InlineKeyboardMarkup(keyboard), make_sector_text(None, "Гыча")
 
-# Отправляет запрсо на перемещение о секторе 4
+# Отправляет запрос на перемещение к сектору 4
 @register(POST_SECTOR_4)
 def post_sector_body_4(query: CallbackQuery):
     # Проверка состояние игрока

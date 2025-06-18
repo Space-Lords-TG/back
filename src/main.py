@@ -44,6 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         player_id, username = update.message.from_user.id, \
             update.message.from_user.username
         service = PlayerService(db)
+        service.increment_screen_view(player_id, "START")
         service.player_init(player_id, username)
 
         utmService = UtmService(db)

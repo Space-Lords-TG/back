@@ -1,4 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
+from src.application.player_service import PlayerService
 from src.presentation.screens.registry import register
 from src.application.ship_service import ShipService
 from src.application.arena_service import ArenaService
@@ -7,8 +10,8 @@ from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 
 # Определяем идентификаторы экранов
-ARENA = 'АРЕНА'
-ARENA_QUEUE = 'ARENA_QUEUE'
+ARENA = config["screens"]["ARENA"]
+ARENA_QUEUE = config["screens"]["ARENA_QUEUE"]
 
 # Функция, возвращающая разметку для арены
 @register(ARENA)
@@ -16,6 +19,8 @@ def get_arena(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, ARENA)
         service = ShipService(db)
         stats = service.get_ship_stats(player_id)
 
@@ -25,19 +30,19 @@ def get_arena(query: CallbackQuery):
 
         text = f"""Арена
 
-Характеристики вашего корабля:
-Скорость: {stats['speed_gun']:.0f}
-Урон: {stats['damage_gun']:.0f}
-Шанс крита: {stats['crit_rate_gun']:.2f}%
-Крит. урон: {stats['crit_damage_gun']:.2f}x
-Защита: {stats['armor_hull']:.0f}
-Щиты: {stats['shields_hull']:.0f}
-Манёвренность: {stats['maneuver_hull']:.2f}
-
-Вы можете встать в очередь, система найдёт подходящего оппонента.
-
-Бой начнётся автоматически.
-"""
+                    Характеристики вашего корабля:
+                    Скорость: {stats['speed_gun']:.0f}
+                    Урон: {stats['damage_gun']:.0f}
+                    Шанс крита: {stats['crit_rate_gun']:.2f}%
+                    Крит. урон: {stats['crit_damage_gun']:.2f}x
+                    Защита: {stats['armor_hull']:.0f}
+                    Щиты: {stats['shields_hull']:.0f}
+                    Манёвренность: {stats['maneuver_hull']:.2f}
+                    
+                    Вы можете встать в очередь, система найдёт подходящего оппонента.
+                    
+                    Бой начнётся автоматически.
+                """
         return InlineKeyboardMarkup(keyboard), text
 
     except Exception as e:
@@ -51,6 +56,8 @@ def get_queue(query: CallbackQuery):
     db = SessionLocal()
     try:
         player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, ARENA_QUEUE)
         service = ShipService(db)
         arena_service = ArenaService(db)
 

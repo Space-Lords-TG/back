@@ -1,21 +1,33 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+
+from src.application.config_loader import config
+from src.application.player_service import PlayerService
+from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.ship as shipScreens
 
 # Определяем идентификаторы экранов
-PLANET = 'PLANET'
-POST_PLANET_CLAIM = 'POST_PLANET_CLAIM'
-POST_PLANET_GATHER = 'POST_PLANET_GATHER'
-PLANET_UPGRADE = 'PLANET_UPGRADE'
-POST_PLANET_UPGRADE = 'POST_PLANET_UPGRADE'
-PLANET_ENEMY = 'PLANET_ENEMY'
-
+PLANET = config["screens"]['PLANET']
+POST_PLANET_CLAIM = config["screens"]['POST_PLANET_CLAIM']
+POST_PLANET_GATHER = config["screens"]['POST_PLANET_GATHER']
+PLANET_UPGRADE = config["screens"]['PLANET_UPGRADE']
+POST_PLANET_UPGRADE = config["screens"]['POST_PLANET_UPGRADE']
+PLANET_ENEMY = config["screens"]['PLANET_ENEMY']
+PLANET_FIGHT = config["screens"]['PLANET_FIGHT']
 
 # Функция, возвращающая разметку для планеты
 @register(PLANET)
 def get_planet(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, PLANET)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Определяем, какой именно экран показывать в 
     # зависимости от отношения игрока к планете
@@ -57,7 +69,15 @@ def get_free_planet(query: CallbackQuery):
 # Отправляет запрос на постройку аванпоста на планете
 @register(POST_PLANET_CLAIM)
 def post_planet_claim(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_PLANET_CLAIM)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Отправка запроса
     print('planet claim request')
@@ -98,7 +118,15 @@ def get_owned_planet(query: CallbackQuery):
 # Отправляет запрос на сбор ресурсов
 @register(POST_PLANET_GATHER)
 def post_planet_gather(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_PLANET_GATHER)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Отправка запроса
     print('planet gether request')
@@ -108,7 +136,15 @@ def post_planet_gather(query: CallbackQuery):
 
 @register(PLANET_UPGRADE)
 def get_planet_upgrade(query: CallbackQuery):
-    # Проверка состояния игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, PLANET_UPGRADE)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     keyboard = [
         [InlineKeyboardButton(
@@ -139,7 +175,15 @@ def get_planet_upgrade(query: CallbackQuery):
 # Отправляет запрос на улучшение планеты
 @register(POST_PLANET_UPGRADE)
 def post_planet_upgrade(query: CallbackQuery):
-    # Проверка состояния игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, POST_PLANET_UPGRADE)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Отправка запроса
     print('planet upgrade request')
@@ -149,7 +193,15 @@ def post_planet_upgrade(query: CallbackQuery):
 
 @register(PLANET_ENEMY)
 def get_enemy_planet(query: CallbackQuery):
-    # Проверка состояния игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, PLANET_ENEMY)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     keyboard = [
         [InlineKeyboardButton(
@@ -177,14 +229,19 @@ def get_enemy_planet(query: CallbackQuery):
 Здоровье: 1200
 """
 
-# Определяем идентификаторы экранов
-PLANET_FIGHT = 'PLANET_FIGHT'
-
 
 # Функция, возвращающая разметку для арены
 @register(PLANET_FIGHT)
 def get_planet_fight(query: CallbackQuery):
-    # Проверка состояние игрока
+    try:
+        db = SessionLocal()
+        player_id = query.from_user.id
+        player_service = PlayerService(db)
+        player_service.increment_screen_view(player_id, PLANET_FIGHT)
+    except Exception as e:
+        return None, f"Ошибка: {str(e)}"
+    finally:
+        db.close()
 
     # Если игрок уже в очереди, то отправляем соответствующий экран
     # return get_queue(query)
