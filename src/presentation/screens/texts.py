@@ -1,19 +1,18 @@
 from src.application.config_loader import config
 
 ARENA_TUTORIAL_TEXT = f"""
-На арене игроки могут сразиться друг с другом из любого места галактики. 
-Формат сражения: 1 на 1. 
+На арене игроки могут сразиться друг с другом из любого места галактики.
+Формат сражения: 1 на 1.
 Противники подбираются так, чтобы общая мощь кораблей отличалась друг от друга не более,
- чем на {config["game"]["match_power_threshold"]}. 
-Урон пушек во время боя случайным образом меняет значение в интервале 
-±{config["game"]["damage_deviation"]}%. 
-Награда за бой зависит от результата и от разницы мощи кораблей. 
-Полученный здоровьем урон не восстанавливается автоматически — 
+чем на {config["game"]["match_power_threshold"]}.
+Урон пушек во время боя случайным образом меняет значение в интервале
+±{config["game"]["damage_deviation"]}%.
+Награда за бой зависит от результата и от разницы мощи кораблей.
+Полученный здоровьем урон не восстанавливается автоматически —
 необходимо отремонтировать корпус.\n\n
 """
 
-SHIP_TUTORIAL_TEXT = \
-"""
+SHIP_TUTORIAL_TEXT = """
 Здесь описаны все характеристики твоего корабля:
 - Скорость -- количество выстрелов за единицу времени.
 - Урон -- количество повреждений, которое наносится при атаке.
@@ -21,33 +20,31 @@ SHIP_TUTORIAL_TEXT = \
 - Крит. урон -- множитель урона при крит. ударе.
 - Защита -- кол-во урона, вычитаемое из любой атаки противника.
 - Манёвренность -- шанс уклониться от атаки.
-- Щиты -- поглощают весь урон до полного истощения. 
+- Щиты -- поглощают весь урон до полного истощения.
 Восстанавливаются бесплатно после каждого боя.
-- Здоровье -- при падении до нуля корабль выходит из строя. 
-Вычитается только при полностью истощённых щитах. 
+- Здоровье -- при падении до нуля корабль выходит из строя.
+Вычитается только при полностью истощённых щитах.
 Для восстановления необходим ремонт корабля.
 
 На корабле установленны модули:
 - пушка отвечает на урон, крит. частота, крит. урон и скорость.
 - корпус влияет на здоровье, щиты, защиту и манёвренность.
 
-В подменю можно посмотреть, заменить и улучшить выбранные модули. 
+В подменю можно посмотреть, заменить и улучшить выбранные модули.
 Пушки улучшаются за кристаллы, а корпуса -- за металл.
 
-Для восстановления здоровья корабля необходимо произвести ремонт, 
-стоимость и время которого зависит от потерянного здоровья. \n\n
+Для восстановления здоровья корабля необходимо произвести ремонт,
+стоимость и время которого зависит от потерянного здоровья.\n\n
 """
 
-DEFAULT_TUTORIAL_TEXT = \
-"""
-В этом меню содержится информация о статусе корабля и имеющихся ресурсах. 
+DEFAULT_TUTORIAL_TEXT = """
+В этом меню содержится информация о статусе корабля и имеющихся ресурсах.
 Если корабль находится на орбите планеты, можно посмотреть её характеристики.\n\n
 """
 
-PLANET_TUTORIAL_TEXT = \
-"""
-На этом экране содержися информация о планете, её характеристики можно посмотреть 
-только при выходе на её орбиту. 
+PLANET_TUTORIAL_TEXT = """
+На этом экране содержися информация о планете, её характеристики можно посмотреть
+только при выходе на её орбиту.
 По каждой планете отображается:
 - название
 - тип
@@ -55,9 +52,9 @@ PLANET_TUTORIAL_TEXT = \
 - вместимость ресурсов
 - статус
 
-От типа планеты зависит производимый на ней ресурс: металл производят каменные планеты, 
-кристаллы -- ледяные, а газ -- газовые. 
-Произведённые планетой ресурсы необходимо своевременно собирать, т.к. 
+От типа планеты зависит производимый на ней ресурс: металл производят каменные планеты,
+кристаллы -- ледяные, а газ -- газовые.
+Произведённые планетой ресурсы необходимо своевременно собирать, т.к.
 они перестанут производиться, если склад заполнится.
 
 Планета может обладать тремя состояниями:
@@ -66,8 +63,7 @@ PLANET_TUTORIAL_TEXT = \
 - принадлежит тебе, в таком случае её можно улучшать и собирать ресурсы.\n\n
 """
 
-ARENA_STATS_TEXT = \
-"""Арена
+ARENA_STATS_TEXT = """Арена
 
 Характеристики вашего корабля:
 Скорость: {speed:.0f}
@@ -83,30 +79,26 @@ ARENA_STATS_TEXT = \
 Бой начнётся автоматически.
 """
 
-ARENA_QUEUE_TEXT = \
-"""<b>Ваш корабль сейчас на ремонте!</b>
+ARENA_QUEUE_TEXT = """<b>Ваш корабль сейчас на ремонте!</b>
 
 Вы не можете участвовать в битве, пока ремонт не завершён.
 
 Завершение ремонта: <b>{time_str}</b>
 """
 
-ARENA_QUEUE_ZERO_HEALTH_TEXT = \
-"""<b>Здоровье вашего корабля равно 0.</b>
+ARENA_QUEUE_ZERO_HEALTH_TEXT = """<b>Здоровье вашего корабля равно 0.</b>
 
 Вы не можете участвовать в битве, пока не отремонтируете корабль.
 """
 
-ARENA_QUEUE_REPAIR_TEXT = \
-"""<b>Ваш корабль сейчас на ремонте!</b>
+ARENA_QUEUE_REPAIR_TEXT = """<b>Ваш корабль сейчас на ремонте!</b>
 
 Вы не можете участвовать в битве, пока ремонт не завершён.
 
 Завершение ремонта: <b>{time_str}</b>
 """
 
-ARENA_IN_QUEUE_TEXT = \
-"""<b>Арена</b>
+ARENA_IN_QUEUE_TEXT = """<b>Арена</b>
 
 <b>Поиск противника...</b>
 
@@ -126,8 +118,7 @@ ARENA_IN_QUEUE_TEXT = \
 """
 
 # Ship module texts
-SHIP_MAIN_TEXT = \
-"""Ваш корабль:
+SHIP_MAIN_TEXT = """Ваш корабль:
 
 Скорость: {speed_gun}
 Урон: {damage_gun}
@@ -145,8 +136,7 @@ SHIP_MAIN_TEXT = \
 Вы можете настроить модули в этом меню.
 """
 
-WEAPON_INFO_TEXT = \
-"""<b>Оружие</b>
+WEAPON_INFO_TEXT = """<b>Оружие</b>
 
 На данный момент установлено:
 <b>{name_gun}</b>
@@ -164,8 +154,7 @@ WEAPON_INFO_TEXT = \
 {cost:,} кристаллов
 """
 
-WEAPON_UPGRADE_PREVIEW_TEXT = \
-"""<b>Оружие</b>
+WEAPON_UPGRADE_PREVIEW_TEXT = """<b>Оружие</b>
 
 Вы хотите улучшить:
 <b>{name_gun}</b>
@@ -182,8 +171,7 @@ WEAPON_UPGRADE_PREVIEW_TEXT = \
 {cost:,} кристаллов
 """
 
-WEAPON_UPGRADE_SUCCESS_TEXT = \
-"""<b>Оружие улучшено!</b>
+WEAPON_UPGRADE_SUCCESS_TEXT = """<b>Оружие улучшено!</b>
 
 <b>{name_gun}</b> теперь имеет:
 Уровень: {level_gun}
@@ -195,8 +183,7 @@ WEAPON_UPGRADE_SUCCESS_TEXT = \
 Мощь: {power_gun:.2f}
 """
 
-WEAPON_CHANGE_TEXT = \
-"""<b>Оружие</b>
+WEAPON_CHANGE_TEXT = """<b>Оружие</b>
 
 На данный момент установлено:
 <b>{name_gun}</b>
@@ -213,8 +200,7 @@ WEAPON_CHANGE_TEXT = \
 Вы можете выбрать оружие для замены:
 """
 
-WEAPON_CHANGE_SUCCESS_TEXT = \
-"""<b>Оружие заменено!</b>
+WEAPON_CHANGE_SUCCESS_TEXT = """<b>Оружие заменено!</b>
 
 <b>{name_gun}</b> устновлен.
 Уровень: {level_gun}
@@ -228,8 +214,7 @@ WEAPON_CHANGE_SUCCESS_TEXT = \
 Мощь: {power_gun:.2f}
 """
 
-HULL_INFO_TEXT = \
-"""<b>Корпус:</b>
+HULL_INFO_TEXT = """<b>Корпус:</b>
 
 На данный момент установлен:
 <b>{name_hull}</b>
@@ -247,8 +232,7 @@ HULL_INFO_TEXT = \
 {cost:,} металлов
 """
 
-HULL_UPGRADE_PREVIEW_TEXT = \
-"""<b>Улучшение корпуса</b>
+HULL_UPGRADE_PREVIEW_TEXT = """<b>Улучшение корпуса</b>
 
 <b>{name_hull}</b>
 Уровень: {current_level} ➜ {next_level}
@@ -264,8 +248,7 @@ HULL_UPGRADE_PREVIEW_TEXT = \
 {cost:,} металлов
 """
 
-HULL_UPGRADE_SUCCESS_TEXT = \
-"""<b>Корпус улучшен!</b>
+HULL_UPGRADE_SUCCESS_TEXT = """<b>Корпус улучшен!</b>
 
 <b>{name_hull}</b>
 Уровень: {level_hull}
@@ -279,8 +262,7 @@ HULL_UPGRADE_SUCCESS_TEXT = \
 Мощь: {power_hull:.2f}
 """
 
-HULL_CHANGE_TEXT = \
-"""<b>Корпус</b>
+HULL_CHANGE_TEXT = """<b>Корпус</b>
 
 На данный момент установлен:
 <b>{name_hull}</b>
@@ -297,8 +279,7 @@ HULL_CHANGE_TEXT = \
 Вы можете выбрать корпус для замены:
 """
 
-HULL_CHANGE_SUCCESS_TEXT = \
-"""<b>Корпус заменён!</b>
+HULL_CHANGE_SUCCESS_TEXT = """<b>Корпус заменён!</b>
 
 <b>{name_hull}</b>
 Уровень: {level_hull}
@@ -312,8 +293,7 @@ HULL_CHANGE_SUCCESS_TEXT = \
 Мощь: {power_hull:.2f}
 """
 
-REPAIR_INFO_TEXT = \
-"""<b>Ремонт корпуса:</b>
+REPAIR_INFO_TEXT = """<b>Ремонт корпуса:</b>
 
 Текущее здоровье корпуса:
 {current_health:.0f} / {max_health:.0f} ({(health_percent):.1f}%)
@@ -321,8 +301,7 @@ REPAIR_INFO_TEXT = \
 {repair_status}
 """
 
-REPAIR_COSTS_TEXT = \
-"""Стоимость ремонта:
+REPAIR_COSTS_TEXT = """Стоимость ремонта:
 {cost_metals} металлов
 {cost_crystalls} кристаллов
 
@@ -330,8 +309,7 @@ REPAIR_COSTS_TEXT = \
 {cooldown_minutes} мин {cooldown_seconds} сек
 """
 
-REPAIR_STARTED_TEXT = \
-"""<b>Ремонт запущен!</b>
+REPAIR_STARTED_TEXT = """<b>Ремонт запущен!</b>
 
 Восстановится здоровье: {restored_health} / {max_health}
 Списано кристаллов: {cost_crystalls}
@@ -339,27 +317,23 @@ REPAIR_STARTED_TEXT = \
 Завершение через: {cooldown_minutes} мин {cooldown_seconds} сек
 """
 
-REPAIR_IN_PROGRESS_TEXT = \
-"""Оставшееся время ремонта:
+REPAIR_IN_PROGRESS_TEXT = """Оставшееся время ремонта:
 {minutes_left} мин {seconds_left} сек
 
 <i>Завершение в {end_time}</i>
 """
 
-REPAIR_COMPLETE_TEXT = \
-"""Корпус полностью отремонтирован.
+REPAIR_COMPLETE_TEXT = """Корпус полностью отремонтирован.
 """
 
-NOT_ENOUGH_RESOURCES_TEXT = \
-"""<b>Недостаточно ресурсов</b>
+NOT_ENOUGH_RESOURCES_TEXT = """<b>Недостаточно ресурсов</b>
 
 Нужно: {required}
 У вас: {available}
 """
 
 # Planet module texts
-PLANET_FREE_TEXT = \
-"""Планета
+PLANET_FREE_TEXT = """Планета
 {name}
 
 Доступные ресурсы:
@@ -375,8 +349,7 @@ PLANET_FREE_TEXT = \
 {claim_cost_fuel} топлива
 """
 
-PLANET_OWNED_TEXT = \
-"""Планета
+PLANET_OWNED_TEXT = """Планета
 {name}
 Уровень {level}
 
@@ -392,8 +365,7 @@ PLANET_OWNED_TEXT = \
 Вы владеете этой планетой.
 """
 
-PLANET_UPGRADE_PREVIEW_TEXT = \
-"""Планета (улучшение)
+PLANET_UPGRADE_PREVIEW_TEXT = """Планета (улучшение)
 Вы хотите улучшить:
 {name}
 
@@ -401,7 +373,7 @@ PLANET_UPGRADE_PREVIEW_TEXT = \
 Кристаллы: {current_crystal_rate}/час -> {next_crystal_rate}/час
 Металлы: {current_metal_rate}/час -> {next_metal_rate}/час
 Вместимость:
-{current_crystal_capacity} (К), {current_metal_capacity} (М) 
+{current_crystal_capacity} (К), {current_metal_capacity} (М)
 -> {next_crystal_capacity} (К), {next_metal_capacity} (М)
 
 Стоимость улучшения:
@@ -409,8 +381,7 @@ PLANET_UPGRADE_PREVIEW_TEXT = \
 {upgrade_cost_metal} металлов
 """
 
-PLANET_ENEMY_TEXT = \
-"""Планета
+PLANET_ENEMY_TEXT = """Планета
 {name}
 
 Производство:
@@ -426,8 +397,7 @@ PLANET_ENEMY_TEXT = \
 Здоровье: {owner_health}
 """
 
-PLANET_FIGHT_RESULT_TEXT = \
-"""Результаты боя
+PLANET_FIGHT_RESULT_TEXT = """Результаты боя
 
 Вы: {player_name} ({player_power} 💪)
 Противник: {enemy_name} ({enemy_power} 💪)
@@ -441,16 +411,14 @@ PLANET_FIGHT_RESULT_TEXT = \
 {additional_message}
 """
 
-PLANET_CLAIM_SUCCESS_TEXT = \
-"""Аванпост построен!
+PLANET_CLAIM_SUCCESS_TEXT = """Аванпост построен!
 Теперь вы владеете планетой {name}.
 
 Получено начальных ресурсов:
 {initial_resources} {resource_type}
 """
 
-PLANET_GATHER_SUCCESS_TEXT = \
-"""Ресурсы собраны!
+PLANET_GATHER_SUCCESS_TEXT = """Ресурсы собраны!
 
 С планеты {name} получено:
 {gathered_amount} {resource_type}
@@ -459,8 +427,7 @@ PLANET_GATHER_SUCCESS_TEXT = \
 {remaining_amount}/{capacity} {resource_type}
 """
 
-PLANET_UPGRADE_SUCCESS_TEXT = \
-"""Планета улучшена!
+PLANET_UPGRADE_SUCCESS_TEXT = """Планета улучшена!
 
 {name} теперь имеет:
 Уровень: {level}
@@ -468,8 +435,7 @@ PLANET_UPGRADE_SUCCESS_TEXT = \
 Вместимость: {capacity} {resource_type}
 """
 
-PLANET_NOT_ENOUGH_RESOURCES_TEXT = \
-"""<b>Недостаточно ресурсов</b>
+PLANET_NOT_ENOUGH_RESOURCES_TEXT = """<b>Недостаточно ресурсов</b>
 
 Нужно:
 {required_crystals} кристаллов (у вас: {available_crystals})
@@ -478,8 +444,7 @@ PLANET_NOT_ENOUGH_RESOURCES_TEXT = \
 """
 
 # Main menu texts
-DEFAULT_MENU_TEXT = \
-"""Главный экран
+DEFAULT_MENU_TEXT = """Главный экран
 <b>Добро пожаловать!</b>
 
 Вы можете настроить свой корабль воспользовавшись кнопками ниже.
@@ -493,23 +458,20 @@ DEFAULT_MENU_TEXT = \
 Газы: {gas}
 """
 
-RESOURCES_TEXT = \
-"""<b>Ваши ресурсы</b>
+RESOURCES_TEXT = """<b>Ваши ресурсы</b>
 Кристаллы: {crystalls}
 Металлы: {metals}
 Газы: {gas}
 """
 
 # Map module texts
-MAP_TEXT = \
-"""Текущая система:
+MAP_TEXT = """Текущая система:
 <b>{current_system}</b>
 
 Выберите, к какой планете переместиться:
 {planet_list}"""
 
-PLANET_TRAVEL_TEXT = \
-"""Текущая планета:
+PLANET_TRAVEL_TEXT = """Текущая планета:
 {current_planet}
 
 Пункт назначения:
@@ -525,8 +487,7 @@ PLANET_TRAVEL_TEXT = \
 {engine_speed} пк/час.
 """
 
-SECTORS_TEXT = \
-"""
+SECTORS_TEXT = """
 Текущая система:
 <b>{current_system}</b>
 
@@ -534,8 +495,7 @@ SECTORS_TEXT = \
 {sectors_list}
 """
 
-SECTOR_TRAVEL_TEXT = \
-"""Текущая система:
+SECTOR_TRAVEL_TEXT = """Текущая система:
 {current_system}
 
 Пункт назначения:
@@ -551,8 +511,7 @@ SECTOR_TRAVEL_TEXT = \
 {engine_speed} пк/час.
 """
 
-FLIGHT_REQUEST_TEXT = \
-"""Запрос на перемещение принят!
+FLIGHT_REQUEST_TEXT = """Запрос на перемещение принят!
 
 Направление: {destination}
 Расстояние: {distance} пк
@@ -563,44 +522,38 @@ PLANET_LIST_ITEM = """{name} ({distance} пк)"""
 SECTOR_LIST_ITEM = """{name} ({distance} пк)"""
 
 # Admin module texts
-ADMIN_MAIN_TEXT = \
-"""Админка
+ADMIN_MAIN_TEXT = """Админка
 
 Вы находитесь на главном экране админки.
 
 Выберите действие:
 """
 
-ADMIN_UTM_LIST_TEXT = \
-"""Админка
+ADMIN_UTM_LIST_TEXT = """Админка
 
 Список UTM меток (Название тега: кол-во вызовов start с этой меткой):
 {utm_list}
 """
 
-ADMIN_CREATE_UTM_TEXT = \
-"""Админка
+ADMIN_CREATE_UTM_TEXT = """Админка
 
 Введите тег для новой UTM метки:
 <code>/utm ТЕГ_МЕТКИ</code>
 """
 
-ADMIN_REGISTRATION_INFO_TEXT = \
-"""Админка
+ADMIN_REGISTRATION_INFO_TEXT = """Админка
 
 Введите команду для просмотра зарегистрированных пользователей:
 <code>/get_users day/week/month/year/all</code>
 """
 
-ADMIN_PLAYER_TABLES_TEXT = \
-"""Админка
+ADMIN_PLAYER_TABLES_TEXT = """Админка
 
 Введите команду для просмотра таблиц игрока:
 <code>/get_user_info ИМЯ_ПОЛЬЗОВАТЕЛЯ</code>
 """
 
-ADMIN_SET_RESOURCES_TEXT = \
-"""Админка
+ADMIN_SET_RESOURCES_TEXT = """Админка
 
 Введите команду для установки ресурсов игрока:
 <code>/set_resources ИМЯ_ПОЛЬЗОВАТЕЛЯ ТИП_РЕСУРСА КОЛИЧЕСТВО</code>
@@ -609,8 +562,7 @@ ADMIN_SET_RESOURCES_TEXT = \
 Доступные типы ресурсов: metals, crystalls, gas
 """
 
-ADMIN_BROADCAST_TEXT = \
-"""Админка
+ADMIN_BROADCAST_TEXT = """Админка
 
 Введите команду для оповещения игроков:
 <code>/broadcast СООБЩЕНИЕ</code>
