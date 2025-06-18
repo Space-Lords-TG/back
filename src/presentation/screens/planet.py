@@ -1,12 +1,13 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
+import src.presentation.screens.mainMenu as mainMenu
+import src.presentation.screens.ship as shipScreens
 from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
-import src.presentation.screens.mainMenu as mainMenu
-import src.presentation.screens.ship as shipScreens
-from texts import PLANET_FREE_TEXT, PLANET_TUTORIAL_TEXT, PLANET_OWNED_TEXT, PLANET_UPGRADE_PREVIEW_TEXT, \
+from texts import PLANET_FREE_TEXT, PLANET_TUTORIAL_TEXT, PLANET_OWNED_TEXT, \
+    PLANET_UPGRADE_PREVIEW_TEXT, \
     PLANET_ENEMY_TEXT, PLANET_FIGHT_RESULT_TEXT
 
 # Определяем идентификаторы экранов
@@ -157,7 +158,8 @@ def get_planet_upgrade(query: CallbackQuery):
         'upgrade_cost_metal': 80
     }
 
-    return InlineKeyboardMarkup(keyboard), PLANET_UPGRADE_PREVIEW_TEXT.format(**upgrade_data)
+    return InlineKeyboardMarkup(keyboard), PLANET_UPGRADE_PREVIEW_TEXT.format(
+        **upgrade_data)
 
 
 @register(POST_PLANET_UPGRADE)
@@ -246,4 +248,5 @@ def get_planet_fight(query: CallbackQuery):
         'additional_message': 'Вы захватили планету.'
     }
 
-    return InlineKeyboardMarkup(keyboard), PLANET_FIGHT_RESULT_TEXT.format(**fight_result)
+    return InlineKeyboardMarkup(keyboard), PLANET_FIGHT_RESULT_TEXT.format(
+        **fight_result)

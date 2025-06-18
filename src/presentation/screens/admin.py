@@ -1,12 +1,16 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
-from src.presentation.screens.registry import register
+
+from src.application.config_loader import config
 from src.application.utm_service import UtmService
 from src.infrastructure.database import SessionLocal
-from src.application.config_loader import config
-
-from src.presentation.screens.texts import ADMIN_BROADCAST_TEXT, ADMIN_SET_RESOURCES_TEXT, ADMIN_PLAYER_TABLES_TEXT, \
-    ADMIN_REGISTRATION_INFO_TEXT, ADMIN_CREATE_UTM_TEXT, ADMIN_UTM_LIST_TEXT, UTM_LINK_TEMPLATE, UTM_ITEM_TEXT, \
-    ADMIN_MAIN_TEXT
+from src.presentation.screens.registry import register
+from src.presentation.screens.texts import (ADMIN_BROADCAST_TEXT,
+                                            ADMIN_SET_RESOURCES_TEXT,
+                                            ADMIN_PLAYER_TABLES_TEXT, \
+                                            ADMIN_REGISTRATION_INFO_TEXT,
+                                            ADMIN_CREATE_UTM_TEXT, ADMIN_UTM_LIST_TEXT,
+                                            UTM_LINK_TEMPLATE, UTM_ITEM_TEXT, \
+                                            ADMIN_MAIN_TEXT)
 
 # Определяем идентификаторы экранов
 ADMIN = config["screens"]["ADMIN"]
@@ -34,11 +38,13 @@ def create_admin_keyboard():
                                  switch_inline_query_current_chat="/utm ")
         ],
         [
-            InlineKeyboardButton("Данные о регистрации", callback_data=ADMIN_REGISTRATION_INFO),
+            InlineKeyboardButton("Данные о регистрации",
+                                 callback_data=ADMIN_REGISTRATION_INFO),
             InlineKeyboardButton("Таблицы игрока", callback_data=ADMIN_PLAYER_TABLES)
         ],
         [
-            InlineKeyboardButton("Редактирование ресурсов", callback_data=ADMIN_SET_RESOURCES),
+            InlineKeyboardButton("Редактирование ресурсов",
+                                 callback_data=ADMIN_SET_RESOURCES),
             InlineKeyboardButton("Оповещение игроков", callback_data=ADMIN_BROADCAST)
         ]
     ]
@@ -81,7 +87,8 @@ def get_utm_all(query: CallbackQuery | Message):
         )
 
         keyboard = create_back_keyboard()
-        return InlineKeyboardMarkup(keyboard), ADMIN_UTM_LIST_TEXT.format(utm_list=utm_list)
+        return InlineKeyboardMarkup(keyboard), ADMIN_UTM_LIST_TEXT.format(
+            utm_list=utm_list)
 
     except Exception as e:
         return None, f"Ошибка: {str(e)}"

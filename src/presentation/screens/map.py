@@ -1,11 +1,13 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
+import src.presentation.screens.mainMenu as mainMenu
 from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
-import src.presentation.screens.mainMenu as mainMenu
-from src.presentation.screens.texts import (PLANET_LIST_ITEM, MAP_TEXT, SECTOR_LIST_ITEM, SECTORS_TEXT, PLANET_TRAVEL_TEXT, SECTOR_TRAVEL_TEXT)
+from src.presentation.screens.texts import (PLANET_LIST_ITEM, MAP_TEXT,
+                                            SECTOR_LIST_ITEM, SECTORS_TEXT,
+                                            PLANET_TRAVEL_TEXT, SECTOR_TRAVEL_TEXT)
 
 # Определяем идентификаторы экранов
 MAP = config["screens"]['MAP']

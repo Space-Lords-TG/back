@@ -1,16 +1,21 @@
+from datetime import datetime, timezone
+
+from pytz import timezone as pytz_timezone
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
 
 from src.application.config_loader import config
 from src.application.player_service import PlayerService
-from src.presentation.screens.registry import register, register_pattern
 from src.application.ship_service import ShipService
 from src.infrastructure.database import SessionLocal
-from datetime import datetime, timezone
-from pytz import timezone as pytz_timezone
-from texts import SHIP_MAIN_TEXT, SHIP_TUTORIAL_TEXT, WEAPON_INFO_TEXT, WEAPON_UPGRADE_PREVIEW_TEXT, \
-    NOT_ENOUGH_RESOURCES_TEXT, WEAPON_UPGRADE_SUCCESS_TEXT, WEAPON_CHANGE_TEXT, WEAPON_CHANGE_SUCCESS_TEXT, \
-    HULL_INFO_TEXT, HULL_CHANGE_TEXT, HULL_CHANGE_SUCCESS_TEXT, HULL_UPGRADE_PREVIEW_TEXT, HULL_UPGRADE_SUCCESS_TEXT, \
-    REPAIR_IN_PROGRESS_TEXT, REPAIR_INFO_TEXT, REPAIR_COSTS_TEXT, REPAIR_STARTED_TEXT, REPAIR_COMPLETE_TEXT
+from src.presentation.screens.registry import register, register_pattern
+from texts import SHIP_MAIN_TEXT, SHIP_TUTORIAL_TEXT, WEAPON_INFO_TEXT, \
+    WEAPON_UPGRADE_PREVIEW_TEXT, \
+    NOT_ENOUGH_RESOURCES_TEXT, WEAPON_UPGRADE_SUCCESS_TEXT, WEAPON_CHANGE_TEXT, \
+    WEAPON_CHANGE_SUCCESS_TEXT, \
+    HULL_INFO_TEXT, HULL_CHANGE_TEXT, HULL_CHANGE_SUCCESS_TEXT, \
+    HULL_UPGRADE_PREVIEW_TEXT, HULL_UPGRADE_SUCCESS_TEXT, \
+    REPAIR_IN_PROGRESS_TEXT, REPAIR_INFO_TEXT, REPAIR_COSTS_TEXT, REPAIR_STARTED_TEXT, \
+    REPAIR_COMPLETE_TEXT
 
 # Определяем идентификаторы экранов
 # Главные экраны
@@ -120,13 +125,17 @@ def get_ship_weapon_upgrade(query: CallbackQuery):
 
         current_stats = {
             'current_damage': service.calc(gun.base_damage, gun.gain_damage, level),
-            'current_crit_rate': format_percent(service.calc(gun.base_crit_rate, gun.gain_crit_rate, level)),
-            'current_crit_damage': service.calc(gun.base_crit_damage, gun.gain_crit_damage, level),
+            'current_crit_rate': format_percent(
+                service.calc(gun.base_crit_rate, gun.gain_crit_rate, level)),
+            'current_crit_damage': service.calc(gun.base_crit_damage,
+                                                gun.gain_crit_damage, level),
             'current_speed': service.calc(gun.base_speed, gun.gain_speed, level),
             'current_power': power_now,
             'next_damage': service.calc(gun.base_damage, gun.gain_damage, level + 1),
-            'next_crit_rate': format_percent(service.calc(gun.base_crit_rate, gun.gain_crit_rate, level + 1)),
-            'next_crit_damage': service.calc(gun.base_crit_damage, gun.gain_crit_damage, level + 1),
+            'next_crit_rate': format_percent(
+                service.calc(gun.base_crit_rate, gun.gain_crit_rate, level + 1)),
+            'next_crit_damage': service.calc(gun.base_crit_damage, gun.gain_crit_damage,
+                                             level + 1),
             'next_speed': service.calc(gun.base_speed, gun.gain_speed, level + 1),
             'next_power': power_next,
             'name_gun': gun.name,
@@ -136,7 +145,8 @@ def get_ship_weapon_upgrade(query: CallbackQuery):
         }
 
         keyboard = [
-            [InlineKeyboardButton("Подтвердить", callback_data=POST_SHIP_WEAPON_UPGRADE)],
+            [InlineKeyboardButton("Подтвердить",
+                                  callback_data=POST_SHIP_WEAPON_UPGRADE)],
             [InlineKeyboardButton("Назад", callback_data=SHIP)]
         ]
 
@@ -196,7 +206,8 @@ def get_ship_weapon_change(query: CallbackQuery):
             if pg.id != current_pg.id:
                 label = f"{gun.name} ({pg.current_level} уровень)"
                 keyboard.append([
-                    InlineKeyboardButton(label, callback_data=f"{POST_SHIP_WEAPON}_{gun.id}")
+                    InlineKeyboardButton(label,
+                                         callback_data=f"{POST_SHIP_WEAPON}_{gun.id}")
                 ])
 
         keyboard.append([InlineKeyboardButton("Назад", callback_data=SHIP_WEAPON)])
@@ -279,7 +290,8 @@ def get_ship_hull_change(query: CallbackQuery):
             if ph.id != current_ph.id:
                 label = f"{hull.name} ({ph.current_level} уровень)"
                 keyboard.append([
-                    InlineKeyboardButton(label, callback_data=f"{POST_SHIP_BODY}_{hull.id}")
+                    InlineKeyboardButton(label,
+                                         callback_data=f"{POST_SHIP_BODY}_{hull.id}")
                 ])
 
         keyboard.append([InlineKeyboardButton("Назад", callback_data=SHIP_BODY)])
@@ -336,14 +348,20 @@ def get_ship_hull_upgrade(query: CallbackQuery):
             'name_hull': hull.name,
             'current_level': level,
             'next_level': level + 1,
-            'current_health': service.calc(hull.base_max_health, hull.gain_max_health, level),
-            'next_health': service.calc(hull.base_max_health, hull.gain_max_health, level + 1),
+            'current_health': service.calc(hull.base_max_health, hull.gain_max_health,
+                                           level),
+            'next_health': service.calc(hull.base_max_health, hull.gain_max_health,
+                                        level + 1),
             'current_armor': service.calc(hull.base_armor, hull.gain_armor, level),
             'next_armor': service.calc(hull.base_armor, hull.gain_armor, level + 1),
-            'current_shields': service.calc(hull.base_max_shields, hull.gain_max_shields, level),
-            'next_shields': service.calc(hull.base_max_shields, hull.gain_max_shields, level + 1),
-            'current_maneuver': service.calc(hull.base_maneuver, hull.gain_maneuver, level),
-            'next_maneuver': service.calc(hull.base_maneuver, hull.gain_maneuver, level + 1),
+            'current_shields': service.calc(hull.base_max_shields,
+                                            hull.gain_max_shields, level),
+            'next_shields': service.calc(hull.base_max_shields, hull.gain_max_shields,
+                                         level + 1),
+            'current_maneuver': service.calc(hull.base_maneuver, hull.gain_maneuver,
+                                             level),
+            'next_maneuver': service.calc(hull.base_maneuver, hull.gain_maneuver,
+                                          level + 1),
             'current_power': power_now,
             'next_power': power_next,
             'cost': cost
