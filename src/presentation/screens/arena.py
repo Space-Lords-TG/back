@@ -13,6 +13,7 @@ from pytz import timezone as pytz_timezone
 ARENA = config["screens"]["ARENA"]
 ARENA_QUEUE = config["screens"]["ARENA_QUEUE"]
 
+
 # Функция, возвращающая разметку для арены
 @register(ARENA)
 def get_arena(query: CallbackQuery):
@@ -38,9 +39,9 @@ def get_arena(query: CallbackQuery):
                     Защита: {stats['armor_hull']:.0f}
                     Щиты: {stats['shields_hull']:.0f}
                     Манёвренность: {stats['maneuver_hull']:.2f}
-                    
+
                     Вы можете встать в очередь, система найдёт подходящего оппонента.
-                    
+
                     Бой начнётся автоматически.
                 """
         return InlineKeyboardMarkup(keyboard), text
@@ -49,6 +50,7 @@ def get_arena(query: CallbackQuery):
         return None, f"Ошибка: {str(e)}"
     finally:
         db.close()
+
 
 # Функция, возвращающая разметку для арены
 @register(ARENA_QUEUE)
@@ -76,7 +78,7 @@ def get_queue(query: CallbackQuery):
 """
             keyboard = [[InlineKeyboardButton("Назад", callback_data=ARENA)]]
             return InlineKeyboardMarkup(keyboard), text
-        
+
         # 🛠 Проверка HP > 0
         if ship.health <= 0:
             text = """<b>Здоровье вашего корабля равно 0.</b>
