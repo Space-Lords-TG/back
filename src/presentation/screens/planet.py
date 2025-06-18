@@ -6,9 +6,10 @@ from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
-from texts import PLANET_FREE_TEXT, PLANET_TUTORIAL_TEXT, PLANET_OWNED_TEXT, \
+from src.presentation.screens.texts import (PLANET_FREE_TEXT, PLANET_TUTORIAL_TEXT,
+PLANET_OWNED_TEXT, \
     PLANET_UPGRADE_PREVIEW_TEXT, \
-    PLANET_ENEMY_TEXT, PLANET_FIGHT_RESULT_TEXT
+    PLANET_ENEMY_TEXT, PLANET_FIGHT_RESULT_TEXT)
 
 # Определяем идентификаторы экранов
 PLANET = config["screens"]['PLANET']

@@ -5,7 +5,7 @@ from src.presentation.screens.registry import register
 import src.presentation.screens.planet as planetScreens
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
-from texts import DEFAULT_TUTORIAL_TEXT, DEFAULT_MENU_TEXT
+from src.presentation.screens.texts import DEFAULT_TUTORIAL_TEXT, DEFAULT_MENU_TEXT
 
 # Определяем идентификаторы экранов
 DEFAULT = config["screens"]["DEFAULT"]
