@@ -5,7 +5,7 @@ from src.presentation.screens.registry import register
 import src.presentation.screens.planet as planetScreens
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
-from texts import *
+from texts import DEFAULT_TUTORIAL_TEXT, DEFAULT_MENU_TEXT
 
 # Определяем идентификаторы экранов
 DEFAULT = config["screens"]["DEFAULT"]
@@ -42,4 +42,4 @@ def get_default_menu(query: CallbackQuery):
 
     text += DEFAULT_MENU_TEXT.format(**resources_data)
 
-    return InlineKeyboardMarkup(keyboard),
+    return InlineKeyboardMarkup(keyboard), text

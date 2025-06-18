@@ -1,12 +1,16 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
 
+from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.presentation.screens.registry import register, register_pattern
 from src.application.ship_service import ShipService
 from src.infrastructure.database import SessionLocal
 from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
-from texts import *
+from texts import SHIP_MAIN_TEXT, SHIP_TUTORIAL_TEXT, WEAPON_INFO_TEXT, WEAPON_UPGRADE_PREVIEW_TEXT, \
+    NOT_ENOUGH_RESOURCES_TEXT, WEAPON_UPGRADE_SUCCESS_TEXT, WEAPON_CHANGE_TEXT, WEAPON_CHANGE_SUCCESS_TEXT, \
+    HULL_INFO_TEXT, HULL_CHANGE_TEXT, HULL_CHANGE_SUCCESS_TEXT, HULL_UPGRADE_PREVIEW_TEXT, HULL_UPGRADE_SUCCESS_TEXT, \
+    REPAIR_IN_PROGRESS_TEXT, REPAIR_INFO_TEXT, REPAIR_COSTS_TEXT, REPAIR_STARTED_TEXT, REPAIR_COMPLETE_TEXT
 
 # Определяем идентификаторы экранов
 # Главные экраны

@@ -1,11 +1,13 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
+from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.infrastructure.database import SessionLocal
 from src.presentation.screens.registry import register
 import src.presentation.screens.mainMenu as mainMenu
 import src.presentation.screens.ship as shipScreens
-from texts import *
+from texts import PLANET_FREE_TEXT, PLANET_TUTORIAL_TEXT, PLANET_OWNED_TEXT, PLANET_UPGRADE_PREVIEW_TEXT, \
+    PLANET_ENEMY_TEXT, PLANET_FIGHT_RESULT_TEXT
 
 # Определяем идентификаторы экранов
 PLANET = config["screens"]['PLANET']

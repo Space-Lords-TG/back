@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
+from src.application.config_loader import config
 from src.application.player_service import PlayerService
 from src.presentation.screens.registry import register
 from src.application.ship_service import ShipService
@@ -8,7 +9,8 @@ from src.infrastructure.database import SessionLocal
 from datetime import datetime, timezone
 from pytz import timezone as pytz_timezone
 
-from src.presentation.screens.texts import *
+from src.presentation.screens.texts import ARENA_STATS_TEXT, ARENA_TUTORIAL_TEXT, ARENA_QUEUE_REPAIR_TEXT, \
+    ARENA_QUEUE_ZERO_HEALTH_TEXT, ARENA_IN_QUEUE_TEXT
 
 # Определяем идентификаторы экранов
 ARENA = config["screens"]["ARENA"]

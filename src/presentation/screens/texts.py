@@ -513,11 +513,13 @@ PLANET_TRAVEL_TEXT = \
 """
 
 SECTORS_TEXT = \
-"""Текущая система:
+"""
+Текущая система:
 <b>{current_system}</b>
 
 Выберите, в какую систему переместиться:
-{sectors_list}"""
+{sectors_list}
+"""
 
 SECTOR_TRAVEL_TEXT = \
 """Текущая система:
@@ -544,5 +546,62 @@ FLIGHT_REQUEST_TEXT = \
 Ожидаемое время прибытия: {arrival_time}
 """
 
-PLANET_LIST_ITEM = "{name} ({distance} пк)"
-SECTOR_LIST_ITEM = "{name} ({distance} пк)"
+PLANET_LIST_ITEM = """{name} ({distance} пк)"""
+SECTOR_LIST_ITEM = """{name} ({distance} пк)"""
+
+# Admin module texts
+ADMIN_MAIN_TEXT = \
+"""Админка
+
+Вы находитесь на главном экране админки.
+
+Выберите действие:
+"""
+
+ADMIN_UTM_LIST_TEXT = \
+"""Админка
+
+Список UTM меток (Название тега: кол-во вызовов start с этой меткой):
+{utm_list}
+"""
+
+ADMIN_CREATE_UTM_TEXT = \
+"""Админка
+
+Введите тег для новой UTM метки:
+<code>/utm ТЕГ_МЕТКИ</code>
+"""
+
+ADMIN_REGISTRATION_INFO_TEXT = \
+"""Админка
+
+Введите команду для просмотра зарегистрированных пользователей:
+<code>/get_users day/week/month/year/all</code>
+"""
+
+ADMIN_PLAYER_TABLES_TEXT = \
+"""Админка
+
+Введите команду для просмотра таблиц игрока:
+<code>/get_user_info ИМЯ_ПОЛЬЗОВАТЕЛЯ</code>
+"""
+
+ADMIN_SET_RESOURCES_TEXT = \
+"""Админка
+
+Введите команду для установки ресурсов игрока:
+<code>/set_resources ИМЯ_ПОЛЬЗОВАТЕЛЯ ТИП_РЕСУРСА КОЛИЧЕСТВО</code>
+
+Пример: /set_resources john_doe metals 1000
+Доступные типы ресурсов: metals, crystalls, gas
+"""
+
+ADMIN_BROADCAST_TEXT = \
+"""Админка
+
+Введите команду для оповещения игроков:
+<code>/broadcast СООБЩЕНИЕ</code>
+"""
+
+UTM_LINK_TEMPLATE = "https://t.me/{bot_name}?start={tag}"
+UTM_ITEM_TEXT = "{tag}: {used}\nСсылка: <code>{link}</code>\n"
