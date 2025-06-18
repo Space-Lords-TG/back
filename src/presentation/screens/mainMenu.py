@@ -19,6 +19,8 @@ def get_default_menu(query: CallbackQuery):
         service = PlayerService(db)
         service.increment_screen_view(player_id, DEFAULT)
         resources = service.get_resources(player_id)
+        if service.get_screen_view_count(player_id, DEFAULT) > 0:
+            text = DEFAULT_TUTORIAL_TEXT
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:
