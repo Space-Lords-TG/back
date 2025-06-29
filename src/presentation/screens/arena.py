@@ -23,7 +23,6 @@ ARENA_QUEUE = config["screens"]["ARENA_QUEUE"]
 async def get_arena(query: CallbackQuery):
     db = SessionLocal()
     try:
-        message = query.message
         player_id = query.from_user.id
         player_service = PlayerService(db)
         player_service.increment_screen_view(player_id, ARENA)
