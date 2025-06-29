@@ -20,9 +20,10 @@ ARENA_QUEUE = config["screens"]["ARENA_QUEUE"]
 
 # Функция, возвращающая разметку для арены
 @register(ARENA)
-def get_arena(query: CallbackQuery):
+async def get_arena(query: CallbackQuery):
     db = SessionLocal()
     try:
+        message = query.message
         player_id = query.from_user.id
         player_service = PlayerService(db)
         player_service.increment_screen_view(player_id, ARENA)
@@ -34,9 +35,11 @@ def get_arena(query: CallbackQuery):
             [InlineKeyboardButton("Встать в очередь", callback_data=ARENA_QUEUE)]
         ]
 
+        if player_service.get_screen_view_count(player_id, ARENA) == 1:
+            await query.reply_text(ARENA_TUTORIAL_TEXT)
+
         text = ARENA_STATS_TEXT.format(**stats)
-        if player_service.get_screen_view_count(player_id, ARENA) == 0:
-            text = ARENA_TUTORIAL_TEXT + text
+
         return InlineKeyboardMarkup(keyboard), text
 
     except Exception as e:

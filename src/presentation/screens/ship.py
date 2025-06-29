@@ -46,7 +46,7 @@ def format_percent(value):
 
 
 @register(SHIP)
-def get_ship(message: Message):
+async def get_ship(message: Message):
     db = SessionLocal()
     try:
         if not message.from_user:
@@ -65,8 +65,9 @@ def get_ship(message: Message):
         ]
 
         text = SHIP_MAIN_TEXT.format(**stats)
-        if player_service.get_screen_view_count(player_id, SHIP) == 0:
-            text = SHIP_TUTORIAL_TEXT + text
+        if player_service.get_screen_view_count(player_id, SHIP) == 1:
+            await message.reply_text(SHIP_TUTORIAL_TEXT)
+
         return InlineKeyboardMarkup(keyboard), text
 
     except Exception as e:

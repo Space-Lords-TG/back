@@ -22,15 +22,16 @@ PLANET_FIGHT = config["screens"]['PLANET_FIGHT']
 
 
 @register(PLANET)
-def get_planet(query: CallbackQuery):
+async def get_planet(query: CallbackQuery):
     tutorial = False
+    message = query.message
     try:
         db = SessionLocal()
         player_id = query.from_user.id
         player_service = PlayerService(db)
         player_service.increment_screen_view(player_id, PLANET)
-        if player_service.get_screen_view_count(player_id, PLANET) == 0:
-            tutorial = True
+        if player_service.get_screen_view_count(player_id, PLANET) == 1:
+            await message.reply_text(PLANET_TUTORIAL_TEXT)
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:
@@ -61,9 +62,6 @@ def get_free_planet(query: CallbackQuery, tutorial: bool = False):
     }
 
     text = PLANET_FREE_TEXT.format(**planet_data)
-
-    if tutorial:
-        text = PLANET_TUTORIAL_TEXT + text
 
     return InlineKeyboardMarkup(keyboard), text
 

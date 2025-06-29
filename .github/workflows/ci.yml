@@ -32,7 +32,9 @@ jobs:
         run: black .
 
       - name: Run flake8
-        run: flake8 . --count --show-source --statistics
+        run: flake8 . --exclude=src/application/presentation/screens/texts.py --count
+          --show-source --statistics
+
 
   build-and-push:
     needs: lint

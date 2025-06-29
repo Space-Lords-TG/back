@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
 
 from src.application.config_loader import config
 from src.presentation.screens.registry import register
@@ -13,8 +13,8 @@ DEFAULT = config["screens"]["DEFAULT"]
 
 # Функция, возвращающая разметку для стандартного экрана
 @register(DEFAULT)
-def get_default_menu(query: CallbackQuery):
-    player_id = query.from_user.id
+async def get_default_menu(message: Message):
+    player_id = message.from_user.id
     db = SessionLocal()
     text = ""
 
@@ -22,8 +22,8 @@ def get_default_menu(query: CallbackQuery):
         service = PlayerService(db)
         service.increment_screen_view(player_id, DEFAULT)
         resources = service.get_resources(player_id)
-        if service.get_screen_view_count(player_id, DEFAULT) > 0:
-            text = DEFAULT_TUTORIAL_TEXT
+        if service.get_screen_view_count(player_id, DEFAULT) == 1:
+            await message.reply_text(DEFAULT_TUTORIAL_TEXT)
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:

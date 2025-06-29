@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 import traceback
@@ -68,7 +69,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                     reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     
     # query = update.callback_query
-    markup, text = mainMenu.get_default_menu(update.message)
+    markup, text = await mainMenu.get_default_menu(update.message)
     imageLink = getImage(mainMenu.DEFAULT)
 
     await update.message.reply_photo(photo=imageLink, \
@@ -470,22 +471,40 @@ async def handle_standard_buttons(update: Update, context: ContextTypes.DEFAULT_
     db = SessionLocal()
     try:
         player_id = update.message.from_user.id
-
         arenaService = ArenaService(db)
         arenaService.leave_queue(player_id)
     except Exception as e:
-        print(e)
+        print(f"Error in queue handling: {e}")
     finally:
         db.close()
 
     if not handler:
-        update.message.reply_text("Неизвестная команда")
+        await update.message.reply_text("Неизвестная команда")
         return
 
-    imageLink = getImage(commandName)
-    markup, text = handler(update.message)
-    await update.message.reply_photo(photo=imageLink, caption=text, \
-                                     reply_markup=markup, parse_mode=ParseMode.HTML)
+    try:
+        # Получаем результат от обработчика
+        result = handler(update.message)
+
+        # Обрабатываем асинхронные и синхронные функции
+        if inspect.iscoroutinefunction(handler):
+            markup, text = await result
+        else:
+            markup, text = result
+
+        imageLink = getImage(commandName)
+
+        # Отправляем сообщение с фото
+        await update.message.reply_photo(
+            photo=imageLink,
+            caption=text,
+            reply_markup=markup,
+            parse_mode=ParseMode.HTML
+        )
+
+    except Exception as e:
+        print(f"Error in handler execution: {e}")
+        await update.message.reply_text("Произошла ошибка при обработке команды")
 
 
 async def error_handler(update, context):
