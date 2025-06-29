@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from src.application.config_loader import config
 from src.presentation.screens.registry import register
