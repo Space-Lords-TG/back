@@ -52,7 +52,45 @@ class PlayerService:
             self.db.add(newPlayerTutorialFlags)
             self.db.commit()
 
-            # ... остальной код остается без изменений
+            newShip = Ship(
+                player_id=id,
+                player_gun_id=newPlayerGun.id,
+                player_hull_id=newPlayerHull.id,
+                health=0,
+                shields=0
+            )
+
+            self.db.add(newShip)
+            self.db.commit()
+
+            # Добавляем все оставшиеся оружия (неэкипированные)
+            guns_count = config["game"]["guns_count"]
+            for i in range(2, guns_count):
+                anotherPlayerGun = PlayerGun(
+                    player_id=id,
+                    gun_id=i,
+                    is_equipped=False
+                )
+                self.db.add(anotherPlayerGun)
+
+            # Добавляем все оставшиеся корпуса (неэкипированные)
+            hulls_count = config["game"]["hulls_count"]
+            for i in range(2, hulls_count):
+                anotherPlayerHull = PlayerHull(
+                    player_id=id,
+                    hull_id=i,
+                    is_equipped=False
+                )
+                self.db.add(anotherPlayerHull)
+            self.db.commit()
+
+            # Пересчитываем параметры корабля
+            self.recalculate_stats(newShip)
+            self.db.commit()
+
+            return newPlayer
+        else:
+            return player
 
     def recalculate_stats(self, ship: Ship):
         player_hull = self.db.get(
