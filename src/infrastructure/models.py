@@ -152,3 +152,16 @@ class ScreenView(Base):
     view_count = Column(Integer, default=0, nullable=False)
 
     player = relationship("Player", backref="screen_views")
+
+
+class PlayerTutorialFlags(Base):
+    __tablename__ = 'player_tutorial_flags'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    player_id = Column(BigInteger, ForeignKey('players.id', ondelete='CASCADE'), nullable=False)
+    arena_tutorial_shown = Column(Boolean, default=False, nullable=False)
+    ship_tutorial_shown = Column(Boolean, default=False, nullable=False)
+    planet_tutorial_shown = Column(Boolean, default=False, nullable=False)
+    default_tutorial_shown = Column(Boolean, default=False, nullable=False)
+
+    player = relationship("Player", backref="tutorial_flags")

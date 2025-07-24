@@ -422,7 +422,32 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Broadcast error: {str(e)}")
     finally:
         db.close()
-    
+
+
+async def tutorial_reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик команды /tutorial_reset для сброса всех флагов обучения"""
+    db = SessionLocal()
+    try:
+        player_id = update.message.from_user.id
+        service = PlayerService(db)
+
+        # Сбрасываем все флаги обучения
+        service.reset_all_tutorial_flags(player_id)
+
+        await update.message.reply_text(
+            "✅ Все флаги обучения сброшены!\n"
+            "Теперь вы снова увидите обучающие сообщения при переходе на экраны.",
+            parse_mode=ParseMode.HTML
+        )
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ Ошибка при сбросе флагов обучения:\n`{str(e)}`",
+            parse_mode=ParseMode.HTML
+        )
+        print(e)
+    finally:
+        db.close()
 
 # Обработчик нажатий на inline кнопки
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -545,6 +570,7 @@ def main():
     # application.add_handler(CallbackQueryHandler(broadcast_button))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_error_handler(error_handler)
+    application.add_handler(CommandHandler("tutorial_reset", tutorial_reset))
 
     fastapi_thread = Thread(target=run_fastapi, daemon=True)
     fastapi_thread.start()

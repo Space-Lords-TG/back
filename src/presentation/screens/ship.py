@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 
 from pytz import timezone as pytz_timezone
@@ -46,6 +47,7 @@ def format_percent(value):
 
 
 @register(SHIP)
+@register(SHIP)
 async def get_ship(message: Message):
     db = SessionLocal()
     try:
@@ -64,9 +66,13 @@ async def get_ship(message: Message):
             [InlineKeyboardButton("Ремонт", callback_data=SHIP_BODY_REPAIR)]
         ]
 
-        text = SHIP_MAIN_TEXT.format(**stats)
-        if player_service.get_screen_view_count(player_id, SHIP) == 1:
+        if player_service.should_show_tutorial(player_id, SHIP):
             await message.reply_text(SHIP_TUTORIAL_TEXT)
+            player_service.mark_tutorial_shown(player_id, SHIP)
+            # Задержка в 2 секунды перед основным окном
+            await asyncio.sleep(2)
+
+        text = SHIP_MAIN_TEXT.format(**stats)
 
         return InlineKeyboardMarkup(keyboard), text
 

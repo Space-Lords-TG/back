@@ -1,3 +1,5 @@
+import asyncio
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from src.application.config_loader import config
@@ -22,8 +24,13 @@ async def get_default_menu(message: Message):
         service = PlayerService(db)
         service.increment_screen_view(player_id, DEFAULT)
         resources = service.get_resources(player_id)
-        if service.get_screen_view_count(player_id, DEFAULT) == 1:
+
+        if service.should_show_tutorial(player_id, DEFAULT):
             await message.reply_text(DEFAULT_TUTORIAL_TEXT)
+            service.mark_tutorial_shown(player_id, DEFAULT)
+            # Задержка в 2 секунды перед основным окном
+            await asyncio.sleep(2)
+
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 
 from pytz import timezone as pytz_timezone
@@ -34,8 +35,11 @@ async def get_arena(query: CallbackQuery):
             [InlineKeyboardButton("Встать в очередь", callback_data=ARENA_QUEUE)]
         ]
 
-        if player_service.get_screen_view_count(player_id, ARENA) == 1:
+        if player_service.should_show_tutorial(player_id, ARENA):
             await query.reply_text(ARENA_TUTORIAL_TEXT)
+            player_service.mark_tutorial_shown(player_id, ARENA)
+            # Задержка в 2 секунды перед основным окном
+            await asyncio.sleep(2)
 
         text = ARENA_STATS_TEXT.format(**stats)
 

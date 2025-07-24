@@ -1,3 +1,5 @@
+import asyncio
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 import src.presentation.screens.mainMenu as mainMenu
@@ -30,8 +32,13 @@ async def get_planet(query: CallbackQuery):
         player_id = query.from_user.id
         player_service = PlayerService(db)
         player_service.increment_screen_view(player_id, PLANET)
-        if player_service.get_screen_view_count(player_id, PLANET) == 1:
+
+        if player_service.should_show_tutorial(player_id, PLANET):
             await message.reply_text(PLANET_TUTORIAL_TEXT)
+            player_service.mark_tutorial_shown(player_id, PLANET)
+            # Задержка в 2 секунды перед основным окном
+            await asyncio.sleep(2)
+
     except Exception as e:
         return None, f"Ошибка: {str(e)}"
     finally:

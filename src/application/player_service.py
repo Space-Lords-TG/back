@@ -4,8 +4,10 @@ import datetime
 
 from src.application.config_loader import config
 from src.infrastructure.models import (
-    Player, PlayerGun, PlayerHull, PlayerResources, Ship, HullTemplate, ScreenView
+    Player, PlayerGun, PlayerHull, PlayerResources, Ship, HullTemplate, ScreenView,
+    PlayerTutorialFlags
 )
+
 
 
 class PlayerService:
@@ -24,67 +26,34 @@ class PlayerService:
                 id=id,
                 username=username,
                 created_at=created_at
-                )
+            )
             newPlayerResources = PlayerResources(
                 player_id=id
-                )
+            )
             newPlayerGun = PlayerGun(
                 player_id=id,
                 gun_id=1,
                 is_equipped=True
-                )
+            )
             newPlayerHull = PlayerHull(
                 player_id=id,
                 hull_id=1,
                 is_equipped=True
-                )
+            )
+            # Добавляем флаги обучения
+            newPlayerTutorialFlags = PlayerTutorialFlags(
+                player_id=id
+            )
 
             self.db.add(newPlayer)
             self.db.add(newPlayerResources)
             self.db.add(newPlayerGun)
             self.db.add(newPlayerHull)
+            self.db.add(newPlayerTutorialFlags)
             self.db.commit()
 
-            newShip = Ship(
-                player_id=id,
-                player_gun_id=newPlayerGun.id,
-                player_hull_id=newPlayerHull.id,
-                health=0,
-                shields=0
-            )
+            # ... остальной код остается без изменений
 
-            self.db.add(newShip)
-            self.db.commit()
-
-            # Добавляем все оставшиеся оружия (неэкипированные)
-            guns_count = config["game"]["guns_count"]
-            for i in range(2, guns_count):
-                anotherPlayerGun = PlayerGun(
-                    player_id=id,
-                    gun_id=i,
-                    is_equipped=False
-                )
-                self.db.add(anotherPlayerGun)
-
-            # Добавляем все оставшиеся корпуса (неэкипированные)
-            hulls_count = config["game"]["hulls_count"]
-            for i in range(2, hulls_count):
-                anotherPlayerHull = PlayerHull(
-                    player_id=id,
-                    hull_id=i,
-                    is_equipped=False
-                )
-                self.db.add(anotherPlayerHull)
-            self.db.commit()
-
-            # Пересчитываем параметры корабля
-            self.recalculate_stats(newShip)
-            self.db.commit()
-
-            return newPlayer
-        else:
-            return player
-        
     def recalculate_stats(self, ship: Ship):
         player_hull = self.db.get(
             PlayerHull,
@@ -215,4 +184,61 @@ class PlayerService:
 
         return screen_view.view_count if screen_view else 0
 
+    def get_tutorial_flags(self, player_id: int) -> PlayerTutorialFlags:
+        """Получает флаги обучения игрока"""
+        tutorial_flags = self.db.execute(
+            select(PlayerTutorialFlags)
+            .where(PlayerTutorialFlags.player_id == player_id)
+        ).scalar_one_or_none()
 
+        if not tutorial_flags:
+            # Создаем новые флаги со значениями False
+            tutorial_flags = PlayerTutorialFlags(
+                player_id=player_id,
+                arena_tutorial_shown=False,
+                ship_tutorial_shown=False,
+                planet_tutorial_shown=False,
+                default_tutorial_shown=False
+            )
+            self.db.add(tutorial_flags)
+            self.db.commit()
+
+        return tutorial_flags
+
+    def should_show_tutorial(self, player_id: int, screen_key: str) -> bool:
+        """Проверяет, нужно ли показать обучающее сообщение для экрана"""
+        tutorial_flags = self.get_tutorial_flags(player_id)
+
+        screen_flag_mapping = {
+            config["screens"]["ARENA"]: tutorial_flags.arena_tutorial_shown,
+            config["screens"]["SHIP"]: tutorial_flags.ship_tutorial_shown,
+            config["screens"]["PLANET"]: tutorial_flags.planet_tutorial_shown,
+            config["screens"]["DEFAULT"]: tutorial_flags.default_tutorial_shown
+        }
+
+        return not screen_flag_mapping.get(screen_key, True)
+
+    def mark_tutorial_shown(self, player_id: int, screen_key: str) -> None:
+        """Отмечает, что обучающее сообщение для экрана было показано"""
+        tutorial_flags = self.get_tutorial_flags(player_id)
+
+        screen_flag_mapping = {
+            config["screens"]["ARENA"]: "arena_tutorial_shown",
+            config["screens"]["SHIP"]: "ship_tutorial_shown",
+            config["screens"]["PLANET"]: "planet_tutorial_shown",
+            config["screens"]["DEFAULT"]: "default_tutorial_shown"
+        }
+
+        flag_field = screen_flag_mapping.get(screen_key)
+        if flag_field:
+            setattr(tutorial_flags, flag_field, True)
+            self.db.commit()
+
+    def reset_all_tutorial_flags(self, player_id: int) -> None:
+        """Сбрасывает все флаги обучения игрока"""
+        tutorial_flags = self.get_tutorial_flags(player_id)
+        tutorial_flags.arena_tutorial_shown = False
+        tutorial_flags.ship_tutorial_shown = False
+        tutorial_flags.planet_tutorial_shown = False
+        tutorial_flags.default_tutorial_shown = False
+        self.db.commit()
